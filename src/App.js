@@ -220,7 +220,7 @@ if (!isLoggedIn) {
         <h1>Grammar Master</h1>
         <div className="header-buttons">
           <button className="add-btn" onClick={() => setShowAddLessonForm(true)}>
-            <FaPlus /> Add Lesson
+            <FaPlus /> Add Lessons
           </button>
           <button className="logout-btn" onClick={() => {
             setIsLoggedIn(false);
@@ -239,8 +239,7 @@ if (!isLoggedIn) {
               </div>
             ))}
           </div>
-        </div>
-        {showAddLessonForm && (
+          {showAddLessonForm && (
   <div className="modal-overlay">
     <div className="modal">
       <h2>Add New Lesson</h2>
@@ -327,6 +326,7 @@ if (!isLoggedIn) {
     </div>
   </div>
 )}
+        </div>
       </div>
     );
   }
