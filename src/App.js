@@ -85,9 +85,12 @@ function App() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false); // toggle password visibility
   const [loginError, setLoginError] = useState(''); // error message
+  const [loading, setLoading] = useState(false);
+
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setLoading(true); // start loader
 
     try {
       const response = await fetch('https://grammar-backend-api.vercel.app/api/login', {
@@ -108,8 +111,11 @@ function App() {
     } catch (err) {
       console.error(err);
       setLoginError('Server error');
+    } finally {
+      setLoading(false); // stop loader
     }
   };
+
 
 
   const togglePasswordVisibility = () => {
