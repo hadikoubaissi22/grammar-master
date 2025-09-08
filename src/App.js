@@ -1,6 +1,7 @@
 // App.js
 import React, { useState } from 'react';
 import './App.css';
+import { FaPlus } from "react-icons/fa"; // plus icon
 
 // Sample lesson data
 const lessons = [
@@ -86,6 +87,14 @@ function App() {
   const [showPassword, setShowPassword] = useState(false); // toggle password visibility
   const [loginError, setLoginError] = useState(''); // error message
   const [loading, setLoading] = useState(false);
+  const [showAddLessonForm, setShowAddLessonForm] = useState(false);
+  const [newLesson, setNewLesson] = useState({
+    title: "",
+    image: "",
+    questions: [
+      { text: "", options: ["", "", "", ""], correctAnswer: 0 }
+    ]
+  });
 
 
   const handleLogin = async (e) => {
@@ -207,13 +216,18 @@ if (!isLoggedIn) {
   if (!currentLesson) {
     return (
       <div className="app">
-        <header className="app-header">
-          <h1>Grammar Master</h1>
+      <header className="app-header">
+        <h1>Grammar Master</h1>
+        <div className="header-buttons">
+          <button className="add-btn" onClick={() => setShowAddLessonForm(true)}>
+            <FaPlus /> Add Lesson
+          </button>
           <button className="logout-btn" onClick={() => {
             setIsLoggedIn(false);
-            localStorage.removeItem('isLoggedIn'); // clear login state
+            localStorage.removeItem('isLoggedIn');
           }}>Logout</button>
-        </header>
+        </div>
+      </header>
         <div className="lessons-container">
           <h2>Select a Lesson</h2>
           <div className="lessons-grid">
@@ -229,6 +243,93 @@ if (!isLoggedIn) {
       </div>
     );
   }
+{showAddLessonForm && (
+  <div className="modal-overlay">
+    <div className="modal">
+      <h2>Add New Lesson</h2>
+      <input 
+        type="text" 
+        placeholder="Lesson Title" 
+        value={newLesson.title} 
+        onChange={(e) => setNewLesson({...newLesson, title: e.target.value})} 
+      />
+      <input 
+        type="text" 
+        placeholder="Lesson Image URL" 
+        value={newLesson.image} 
+        onChange={(e) => setNewLesson({...newLesson, image: e.target.value})} 
+      />
+
+      <h3>Questions</h3>
+      {newLesson.questions.map((q, qIndex) => (
+        <div key={qIndex} className="question-form">
+          <input 
+            type="text" 
+            placeholder="Question text" 
+            value={q.text} 
+            onChange={(e) => {
+              const updated = [...newLesson.questions];
+              updated[qIndex].text = e.target.value;
+              setNewLesson({...newLesson, questions: updated});
+            }} 
+          />
+          {q.options.map((opt, oIndex) => (
+            <input 
+              key={oIndex}
+              type="text"
+              placeholder={`Option ${oIndex+1}`}
+              value={opt}
+              onChange={(e) => {
+                const updated = [...newLesson.questions];
+                updated[qIndex].options[oIndex] = e.target.value;
+                setNewLesson({...newLesson, questions: updated});
+              }}
+            />
+          ))}
+          <label>
+            Correct Answer:
+            <select 
+              value={q.correctAnswer}
+              onChange={(e) => {
+                const updated = [...newLesson.questions];
+                updated[qIndex].correctAnswer = parseInt(e.target.value);
+                setNewLesson({...newLesson, questions: updated});
+              }}
+            >
+              {q.options.map((_, idx) => (
+                <option key={idx} value={idx}>Option {idx+1}</option>
+              ))}
+            </select>
+          </label>
+        </div>
+      ))}
+
+      <button 
+        onClick={() => {
+          setNewLesson({
+            ...newLesson,
+            questions: [...newLesson.questions, { text: "", options: ["", "", "", ""], correctAnswer: 0 }]
+          });
+        }}
+      >
+        ➕ Add Another Question
+      </button>
+
+      <div className="modal-actions">
+        <button 
+          onClick={() => {
+            lessons.push({...newLesson, id: lessons.length+1});
+            setShowAddLessonForm(false);
+            setNewLesson({ title: "", image: "", questions: [{ text: "", options: ["", "", "", ""], correctAnswer: 0 }] });
+          }}
+        >
+          Save Lesson
+        </button>
+        <button onClick={() => setShowAddLessonForm(false)}>Cancel</button>
+      </div>
+    </div>
+  </div>
+)}
 
   if (showResults) {
     const score = calculateScore();
