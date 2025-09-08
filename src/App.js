@@ -240,10 +240,7 @@ if (!isLoggedIn) {
             ))}
           </div>
         </div>
-      </div>
-    );
-  }
-{showAddLessonForm && (
+        {showAddLessonForm && (
   <div className="modal-overlay">
     <div className="modal">
       <h2>Add New Lesson</h2>
@@ -330,6 +327,9 @@ if (!isLoggedIn) {
     </div>
   </div>
 )}
+      </div>
+    );
+  }
 
   if (showResults) {
     const score = calculateScore();
