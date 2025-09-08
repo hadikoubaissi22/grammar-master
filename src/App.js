@@ -160,7 +160,7 @@ if (!isLoggedIn) {
     return (
       <div className="app login-page">
         <div className="login-container">
-          <h1>Grammar Master App</h1>
+          <h1>Grammar Master</h1>
           <h2>Teacher Login</h2>
           <form onSubmit={handleLogin}>
             <div className="input-group">
