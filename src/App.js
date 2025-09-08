@@ -12,19 +12,22 @@ const lessons = [
         id: 1,
         text: "Which word is a noun in this sentence: 'The cat jumped over the fence.'?",
         options: ["The", "cat", "jumped", "over"],
-        correctAnswer: 1
+        correctAnswer: 1,
+        image: "https://example.com/cat.jpg"
       },
       {
         id: 2,
         text: "What is the pronoun in this sentence: 'She went to the store.'?",
         options: ["went", "to", "She", "store"],
-        correctAnswer: 2
+        correctAnswer: 2,
+        image: "https://picsum.photos/seed/picsum/200/300"
       },
       {
         id: 3,
         text: "Which of these is a proper noun?",
         options: ["city", "teacher", "London", "book"],
-        correctAnswer: 2
+        correctAnswer: 2,
+        image: "https://picsum.photos/seed/picsum/200/300"
       }
     ]
   },
@@ -36,13 +39,15 @@ const lessons = [
         id: 1,
         text: "What is the verb in this sentence: 'The children play in the park.'?",
         options: ["The", "children", "play", "park"],
-        correctAnswer: 2
+        correctAnswer: 2,
+        image: "https://picsum.photos/seed/picsum/200/300"
       },
       {
         id: 2,
         text: "Which verb is in the past tense?",
         options: ["walk", "walks", "walked", "walking"],
-        correctAnswer: 2
+        correctAnswer: 2,
+        image: "https://picsum.photos/seed/picsum/200/300"
       }
     ]
   },
@@ -54,37 +59,62 @@ const lessons = [
         id: 1,
         text: "Which word is an adjective in this sentence: 'The red ball bounced high.'?",
         options: ["The", "red", "ball", "high"],
-        correctAnswer: 1
+        correctAnswer: 1,
+        image: "https://picsum.photos/seed/picsum/200/300"
       },
       {
         id: 2,
         text: "Which word is an adverb in this sentence: 'She quickly finished her homework.'?",
         options: ["She", "quickly", "finished", "homework"],
-        correctAnswer: 1
+        correctAnswer: 1,
+        image: "https://picsum.photos/seed/picsum/200/300"
       }
     ]
   }
 ];
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    return localStorage.getItem('isLoggedIn') === 'true';
+  });
   const [currentLesson, setCurrentLesson] = useState(null);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [studentAnswers, setStudentAnswers] = useState({});
   const [showResults, setShowResults] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false); // toggle password visibility
+  const [loginError, setLoginError] = useState(''); // error message
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    // Simple authentication (in a real app, this would connect to a backend)
-    if (username === 'teacher' && password === 'password') {
-      setIsLoggedIn(true);
-    } else {
-      alert('Invalid credentials. Try username: teacher, password: password');
+
+    try {
+      const response = await fetch('https://grammar-backend.vercel.app/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setIsLoggedIn(true);
+        localStorage.setItem('isLoggedIn', 'true');
+        setLoginError('');
+      } else {
+        setLoginError(data.message || 'Login failed');
+      }
+    } catch (err) {
+      console.error(err);
+      setLoginError('Server error');
     }
   };
 
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(prev => !prev);
+  };
   const startLesson = (lesson) => {
     setCurrentLesson(lesson);
     setCurrentQuestion(0);
@@ -126,7 +156,7 @@ function App() {
     setShowResults(false);
   };
 
-  if (!isLoggedIn) {
+if (!isLoggedIn) {
     return (
       <div className="app login-page">
         <div className="login-container">
@@ -142,15 +172,21 @@ function App() {
                 placeholder="Enter username"
               />
             </div>
-            <div className="input-group">
+            <div className="input-group password-group">
               <label>Password:</label>
-              <input 
-                type="password" 
-                value={password} 
-                onChange={(e) => setPassword(e.target.value)} 
-                placeholder="Enter password"
-              />
+              <div className="password-wrapper">
+                <input 
+                  type={showPassword ? 'text' : 'password'} 
+                  value={password} 
+                  onChange={(e) => setPassword(e.target.value)} 
+                  placeholder="Enter password"
+                />
+                <span className="toggle-password" onClick={togglePasswordVisibility}>
+                  {showPassword ? '🐵' : '🙈'}
+                </span>
+              </div>
             </div>
+            {loginError && <p className="error-message">{loginError}</p>}
             <button type="submit" className="login-btn">Login</button>
           </form>
           <p className="demo-credentials">Demo: username: teacher, password: password</p>
@@ -164,7 +200,10 @@ function App() {
       <div className="app">
         <header className="app-header">
           <h1>Grammar Master</h1>
-          <button className="logout-btn" onClick={() => setIsLoggedIn(false)}>Logout</button>
+          <button className="logout-btn" onClick={() => {
+            setIsLoggedIn(false);
+            localStorage.removeItem('isLoggedIn'); // clear login state
+          }}>Logout</button>
         </header>
         <div className="lessons-container">
           <h2>Select a Lesson</h2>
@@ -239,52 +278,64 @@ function App() {
     );
   }
 
-  const question = currentLesson.questions[currentQuestion];
-  
-  return (
-    <div className="app">
-      <header className="app-header">
-        <h1>Grammar Master</h1>
-        <div className="lesson-progress">
-          <span>Question {currentQuestion + 1} of {currentLesson.questions.length}</span>
+const question = currentLesson.questions[currentQuestion];
+
+return (
+  <div className="app">
+    <header className="app-header">
+      <h1>Grammar Master</h1>
+      <div className="lesson-header-buttons">
+        <span className="lesson-progress">
+          Question {currentQuestion + 1} of {currentLesson.questions.length}
+        </span>
+        <button className="back-btn" onClick={resetQuiz}>Back to Lessons</button>
+      </div>
+    </header>
+
+    <div className="quiz-container">
+      <h2>{currentLesson.title}</h2>
+
+      {/* Display question image if exists */}
+      {question.image && (
+        <div className="question-image">
+          <img src={question.image} alt="Question" />
         </div>
-      </header>
-      
-      <div className="quiz-container">
-        <h2>{currentLesson.title}</h2>
-        
-        <div className="question-card">
-          <h3>{question.text}</h3>
-          <div className="options-container">
-            {question.options.map((option, index) => (
-              <div 
-                key={index} 
-                className={`option ${studentAnswers[question.id] === index ? 'selected' : ''}`}
-                onClick={() => handleStudentAnswer(question.id, index)}
-              >
-                {option}
-              </div>
-            ))}
-          </div>
-        </div>
-        
-        <button 
-          className="next-btn" 
-          onClick={nextQuestion}
-          disabled={studentAnswers[question.id] === undefined}
-        >
-          {currentQuestion === currentLesson.questions.length - 1 ? 'Finish Quiz' : 'Next Question'}
-        </button>
-        
-        <div className="progress-bar">
-          <div 
-            className="progress-fill" 
-            style={{width: `${((currentQuestion + 1) / currentLesson.questions.length) * 100}%`}}
-          ></div>
+      )}
+
+      <div className="question-card">
+        <h3>{question.text}</h3>
+        <div className="options-container">
+          {question.options.map((option, index) => (
+            <div 
+              key={index} 
+              className={`option ${studentAnswers[question.id] === index ? 'selected' : ''}`}
+              onClick={() => handleStudentAnswer(question.id, index)}
+            >
+              {option}
+            </div>
+          ))}
         </div>
       </div>
+
+      <button 
+        className="next-btn" 
+        onClick={nextQuestion}
+        disabled={studentAnswers[question.id] === undefined}
+      >
+        {currentQuestion === currentLesson.questions.length - 1 ? 'Finish Quiz' : 'Next Question'}
+      </button>
+
+      <div className="progress-bar">
+        <div 
+          className="progress-fill" 
+          style={{width: `${((currentQuestion + 1) / currentLesson.questions.length) * 100}%`} }
+        ></div>
+      </div>
     </div>
-  );
+
+  </div>
+);
+
 }
 
 export default App;

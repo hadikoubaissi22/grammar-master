@@ -431,3 +431,60 @@ body {
     padding: 20px;
   }
 }
+.password-group {
+  position: relative;
+}
+
+.password-wrapper {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.password-wrapper input {
+  flex: 1;
+  padding-right: 2rem;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 0.5rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.error-message {
+  color: red;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.lesson-header-buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.back-btn {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.back-btn:hover {
+  background-color: #d32f2f;
+}
+.question-image {
+  text-align: center;
+  margin: 1rem 0;
+}
+
+.question-image img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0px 2px 8px rgba(0,0,0,0.2);
+}
+
