@@ -193,7 +193,10 @@ if (!isLoggedIn) {
               </div>
             </div>
             {loginError && <p className="error-message">{loginError}</p>}
-            <button type="submit" className="login-btn">Login</button>
+            <button type="submit" className="login-btn" disabled={loading}>
+              {loading ? <span className="spinner"></span> : "Login"}
+            </button>
+
           </form>
           <p className="demo-credentials">Demo: username: teacher, password: password</p>
         </div>
