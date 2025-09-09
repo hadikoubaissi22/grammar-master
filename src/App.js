@@ -269,10 +269,14 @@ if (!isLoggedIn) {
         onChange={(e) => {
           const file = e.target.files[0];
           if (file) {
-            const imageUrl = URL.createObjectURL(file);
-            const updated = [...newLesson.questions];
-            updated[qIndex].image = imageUrl;
-            setNewLesson({...newLesson, questions: updated});
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              const base64String = reader.result; // Base64 string
+              const updated = [...newLesson.questions];
+              updated[qIndex].image = base64String;
+              setNewLesson({...newLesson, questions: updated});
+            };
+            reader.readAsDataURL(file);
           }
         }}
       />
@@ -442,6 +446,7 @@ return (
           <img src={question.image} alt="Question" />
         </div>
       )}
+
 
       <div className="question-card">
         <h3>{question.text}</h3>
