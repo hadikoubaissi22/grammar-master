@@ -199,7 +199,7 @@ if (!isLoggedIn) {
         </div>
       </header>
         <div className="lessons-container">
-          <h2>Select a Lesson</h2>
+          <h2>Select a Lesson 1</h2>
           <div className="lessons-grid">
             {loadingLessons ? (
               <p>Loading lessons...</p>
