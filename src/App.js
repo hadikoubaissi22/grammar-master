@@ -58,6 +58,8 @@ function App() {
   const [lessons, setLessons] = useState([]);
   const [loadingLessons, setLoadingLessons] = useState(true);
   const [deletingLesson, setDeletingLesson] = useState(null);
+  const [savingLesson, setSavingLesson] = useState(false);
+  const [imageSizeError, setImageSizeError] = useState("");
 
   useEffect(() => {
     fetchLessons();
@@ -180,6 +182,7 @@ function App() {
   };
 
   const saveLesson = async () => {
+    setSavingLesson(true);
     try {
       const response = await fetch("https://grammar-backend-api.vercel.app/lessons", {
         method: "POST",
@@ -215,6 +218,8 @@ function App() {
         text: 'Please try again later',
         confirmButtonColor: '#7E6EF9'
       });
+    } finally {
+      setSavingLesson(false);
     }
   };
 
@@ -292,6 +297,47 @@ function App() {
         deleteLesson(lessonId);
       }
     });
+  };
+
+  const handleImageUpload = async (e, qIndex) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    // Check file size (50KB = 50 * 1024 bytes)
+    const maxSize = 50 * 1024;
+    if (file.size > maxSize) {
+      setImageSizeError("Image size must be less than 50KB");
+      e.target.value = ""; // Clear the file input
+      setTimeout(() => setImageSizeError(""), 3000); // Clear error after 3 seconds
+      return;
+    }
+    
+    try {
+      const options = {
+        maxSizeMB: 0.05, // 50KB
+        maxWidthOrHeight: 800,
+        useWebWorker: true,
+      };
+      const compressedFile = await imageCompression(file, options);
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result;
+        const updated = [...newLesson.questions];
+        updated[qIndex].image = base64String;
+        setNewLesson({ ...newLesson, questions: updated });
+        setImageSizeError(""); // Clear any previous error
+      };
+      reader.readAsDataURL(compressedFile);
+    } catch (error) {
+      console.error("Image compression error:", error);
+      MySwal.fire({
+        icon: 'error',
+        title: 'Upload Error',
+        text: 'Failed to process the image. Please try again.',
+        confirmButtonColor: '#7E6EF9'
+      });
+    }
   };
 
   if (!isLoggedIn) {
@@ -490,35 +536,15 @@ function App() {
                         <input 
                           type="file"
                           accept="image/*"
-                          onChange={async (e) => {
-                            const file = e.target.files[0];
-                            if (!file) return;
-
-                            try {
-                              const options = {
-                                maxSizeMB: 0.2,
-                                maxWidthOrHeight: 800,
-                                useWebWorker: true,
-                              };
-                              const compressedFile = await imageCompression(file, options);
-
-                              const reader = new FileReader();
-                              reader.onloadend = () => {
-                                const base64String = reader.result;
-                                const updated = [...newLesson.questions];
-                                updated[qIndex].image = base64String;
-                                setNewLesson({ ...newLesson, questions: updated });
-                              };
-                              reader.readAsDataURL(compressedFile);
-                            } catch (error) {
-                              console.error("Image compression error:", error);
-                            }
-                          }}
+                          onChange={(e) => handleImageUpload(e, qIndex)}
                         />
                         <span className="file-input-button">
                           <FaPlus /> Upload Question Image
                         </span>
                       </label>
+                      {imageSizeError && (
+                        <div className="error-message-small">{imageSizeError}</div>
+                      )}
                       {q.image && <img src={q.image} alt="preview" className="preview-img" />}
                     </div>
 
@@ -580,12 +606,18 @@ function App() {
                   <button 
                     className="btn-primary"
                     onClick={saveLesson}
+                    disabled={savingLesson}
                   >
-                    <FaCheck /> Save Lesson
+                    {savingLesson ? (
+                      <div className="spinner-small"></div>
+                    ) : (
+                      <><FaCheck /> Save Lesson</>
+                    )}
                   </button>
                   <button 
                     className="btn-secondary" 
                     onClick={() => setShowAddLessonForm(false)}
+                    disabled={savingLesson}
                   >
                     <FaTimes /> Cancel
                   </button>

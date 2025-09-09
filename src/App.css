@@ -1110,6 +1110,10 @@ button {
 }
 
 /* SweetAlert customization for delete confirmation */
+.swal2-container {
+  z-index: 10000 !important; /* Ensure SweetAlert appears above modals */
+}
+
 .swal2-popup.swal2-warning {
   border-radius: 12px;
   padding: 2rem;
@@ -1136,7 +1140,7 @@ button {
 }
 
 .swal2-styled.swal2-confirm {
-  background-color: #ef4444 !important;
+  background-color: #ef4444;
   border-radius: 8px;
   padding: 0.75rem 2rem;
   font-weight: 600;
@@ -1161,11 +1165,37 @@ button {
   transform: translateY(-2px);
 }
 
+/* Image size error message */
+.error-message-small {
+  color: #e53e3e;
+  font-size: 0.85rem;
+  margin-top: 8px;
+  padding: 6px 10px;
+  background-color: #fed7d7;
+  border-radius: 6px;
+  border-left: 3px solid #e53e3e;
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+/* Save button loader */
+.btn-primary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .delete-lesson-btn {
     top: 8px;
     right: 8px;
+    width: 32px;
+    height: 32px;
   }
   
   .swal2-popup {
