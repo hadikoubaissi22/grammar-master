@@ -338,18 +338,17 @@ if (!isLoggedIn) {
     <button 
       className="btn-cancel" 
       onClick={() => {
-        const updated = newLesson.questions.filter((_, index) => index !== qIndex);
         setNewLesson({
-        ...newLesson,
-        questions: newLesson.questions.filter(q => q.id !== questionId)
-      });
-
+          ...newLesson,
+          questions: newLesson.questions.filter(question => question.id !== q.id)
+        });
       }}
     >
       🗑️ Delete Question
     </button>
-  </div>
-))}
+
+    </div>
+  ))}
 
 
 
