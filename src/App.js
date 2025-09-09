@@ -1,78 +1,7 @@
 // App.js
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './App.css';
 import { FaPlus } from "react-icons/fa"; // plus icon
-
-// Sample lesson data
-const lessons = [
-  {
-    id: 1,
-    title: "Nouns and Pronouns",
-    questions: [
-      {
-        id: 1,
-        text: "Which word is a noun in this sentence: 'The cat jumped over the fence.'?",
-        options: ["The", "cat", "jumped", "over"],
-        correctAnswer: 1,
-        image: "https://example.com/cat.jpg"
-      },
-      {
-        id: 2,
-        text: "What is the pronoun in this sentence: 'She went to the store.'?",
-        options: ["went", "to", "She", "store"],
-        correctAnswer: 2,
-        image: "https://picsum.photos/seed/picsum/200/300"
-      },
-      {
-        id: 3,
-        text: "Which of these is a proper noun?",
-        options: ["city", "teacher", "London", "book"],
-        correctAnswer: 2,
-        image: "https://picsum.photos/seed/picsum/200/300"
-      }
-    ]
-  },
-  {
-    id: 2,
-    title: "Verbs and Tenses",
-    questions: [
-      {
-        id: 1,
-        text: "What is the verb in this sentence: 'The children play in the park.'?",
-        options: ["The", "children", "play", "park"],
-        correctAnswer: 2,
-        image: "https://picsum.photos/seed/picsum/200/300"
-      },
-      {
-        id: 2,
-        text: "Which verb is in the past tense?",
-        options: ["walk", "walks", "walked", "walking"],
-        correctAnswer: 2,
-        image: "https://picsum.photos/seed/picsum/200/300"
-      }
-    ]
-  },
-  {
-    id: 3,
-    title: "Adjectives and Adverbs",
-    questions: [
-      {
-        id: 1,
-        text: "Which word is an adjective in this sentence: 'The red ball bounced high.'?",
-        options: ["The", "red", "ball", "high"],
-        correctAnswer: 1,
-        image: "https://picsum.photos/seed/picsum/200/300"
-      },
-      {
-        id: 2,
-        text: "Which word is an adverb in this sentence: 'She quickly finished her homework.'?",
-        options: ["She", "quickly", "finished", "homework"],
-        correctAnswer: 1,
-        image: "https://picsum.photos/seed/picsum/200/300"
-      }
-    ]
-  }
-];
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
@@ -95,6 +24,23 @@ function App() {
       { text: "", options: ["", "", "", ""], correctAnswer: 0 }
     ]
   });
+  const [lessons, setLessons] = useState([]);
+  const [loadingLessons, setLoadingLessons] = useState(true);
+  useEffect(() => {
+    const fetchLessons = async () => {
+      try {
+        const response = await fetch("https://grammar-backend-api.vercel.app/lessons");
+        const data = await response.json();
+        setLessons(data.lessons || []);
+      } catch (err) {
+        console.error("Error fetching lessons:", err);
+      } finally {
+        setLoadingLessons(false);
+      }
+    };
+
+    fetchLessons();
+  }, []);
 
 
   const handleLogin = async (e) => {
@@ -252,13 +198,19 @@ if (!isLoggedIn) {
         <div className="lessons-container">
           <h2>Select a Lesson</h2>
           <div className="lessons-grid">
-            {lessons.map(lesson => (
-              <div key={lesson.id} className="lesson-card" onClick={() => startLesson(lesson)}>
-                <div className="lesson-icon">📚</div>
-                <h3>{lesson.title}</h3>
-                <p>{lesson.questions.length} questions</p>
-              </div>
-            ))}
+            {loadingLessons ? (
+              <p>Loading lessons...</p>
+            ) : lessons.length === 0 ? (
+              <p>No lessons found. Add your first lesson!</p>
+            ) : (
+              lessons.map(lesson => (
+                <div key={lesson.id} className="lesson-card" onClick={() => startLesson(lesson)}>
+                  <div className="lesson-icon">📚</div>
+                  <h3>{lesson.title}</h3>
+                  <p>{lesson.questions.length} questions</p>
+                </div>
+              ))
+            )}
           </div>
           {showAddLessonForm && (
 <div className="modal-overlay">
@@ -288,74 +240,92 @@ if (!isLoggedIn) {
 
     <h3 className="section-title">Questions</h3>
 
-    {newLesson.questions.map((q, qIndex) => (
-      <div key={qIndex} className="question-form">
-        <div className="form-group">
-          <label>Question Text</label>
-          <input 
-            type="text" 
-            placeholder="Enter question text" 
-            value={q.text} 
-            onChange={(e) => {
-              const updated = [...newLesson.questions];
-              updated[qIndex].text = e.target.value;
-              setNewLesson({...newLesson, questions: updated});
-            }} 
-          />
-        </div>
+{newLesson.questions.map((q, qIndex) => (
+  <div key={qIndex} className="question-form">
+    {/* Question Header with Number */}
+    <h4 className="question-title">
+      Question {qIndex + 1}
+    </h4>
 
-        <div className="form-group">
-          <label>Upload Question Image</label>
-          <input 
-            type="file"
-            accept="image/*"
-            onChange={(e) => {
-              const file = e.target.files[0];
-              if (file) {
-                const imageUrl = URL.createObjectURL(file);
-                const updated = [...newLesson.questions];
-                updated[qIndex].image = imageUrl;
-                setNewLesson({...newLesson, questions: updated});
-              }
-            }}
-          />
-          {q.image && <img src={q.image} alt="preview" className="preview-img" />}
-        </div>
+    <div className="form-group">
+      <label>Question Text</label>
+      <input 
+        type="text" 
+        placeholder="Enter question text" 
+        value={q.text} 
+        onChange={(e) => {
+          const updated = [...newLesson.questions];
+          updated[qIndex].text = e.target.value;
+          setNewLesson({...newLesson, questions: updated});
+        }} 
+      />
+    </div>
 
-        <div className="options-container">
-          <label>Options</label>
-          {q.options.map((opt, oIndex) => (
-            <input 
-              key={oIndex}
-              type="text"
-              placeholder={`Option ${oIndex+1}`} 
-              value={opt} 
-              onChange={(e) => {
-                const updated = [...newLesson.questions];
-                updated[qIndex].options[oIndex] = e.target.value;
-                setNewLesson({...newLesson, questions: updated});
-              }}
-            />
-          ))}
-        </div>
+    <div className="form-group">
+      <label>Upload Question Image</label>
+      <input 
+        type="file"
+        accept="image/*"
+        onChange={(e) => {
+          const file = e.target.files[0];
+          if (file) {
+            const imageUrl = URL.createObjectURL(file);
+            const updated = [...newLesson.questions];
+            updated[qIndex].image = imageUrl;
+            setNewLesson({...newLesson, questions: updated});
+          }
+        }}
+      />
+      {q.image && <img src={q.image} alt="preview" className="preview-img" />}
+    </div>
 
-        <div className="form-group">
-          <label>Correct Answer</label>
-          <select 
-            value={q.correctAnswer}
-            onChange={(e) => {
-              const updated = [...newLesson.questions];
-              updated[qIndex].correctAnswer = parseInt(e.target.value);
-              setNewLesson({...newLesson, questions: updated});
-            }}
-          >
-            {q.options.map((_, idx) => (
-              <option key={idx} value={idx}>Option {idx+1}</option>
-            ))}
-          </select>
-        </div>
-      </div>
-    ))}
+    <div className="options-container">
+      <label>Options</label>
+      {q.options.map((opt, oIndex) => (
+        <input 
+          key={oIndex}
+          type="text"
+          placeholder={`Option ${oIndex+1}`} 
+          value={opt} 
+          onChange={(e) => {
+            const updated = [...newLesson.questions];
+            updated[qIndex].options[oIndex] = e.target.value;
+            setNewLesson({...newLesson, questions: updated});
+          }}
+        />
+      ))}
+    </div>
+
+    <div className="form-group">
+      <label>Correct Answer</label>
+      <select 
+        value={q.correctAnswer}
+        onChange={(e) => {
+          const updated = [...newLesson.questions];
+          updated[qIndex].correctAnswer = parseInt(e.target.value);
+          setNewLesson({...newLesson, questions: updated});
+        }}
+      >
+        {q.options.map((_, idx) => (
+          <option key={idx} value={idx}>Option {idx+1}</option>
+        ))}
+      </select>
+    </div>
+
+    {/* Delete Question Button */}
+    <button 
+      className="btn-cancel" 
+      onClick={() => {
+        const updated = newLesson.questions.filter((_, index) => index !== qIndex);
+        setNewLesson({...newLesson, questions: updated});
+      }}
+    >
+      🗑️ Delete Question
+    </button>
+  </div>
+))}
+
+
 
     <button 
       className="btn-secondary"
