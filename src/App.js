@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import './App.css';
 import { FaPlus } from "react-icons/fa"; // plus icon
 import imageCompression from 'browser-image-compression';
+import { v4 as uuidv4 } from 'uuid';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
@@ -22,9 +23,10 @@ function App() {
     title: "",
     image: "",
     questions: [
-      { text: "", options: ["", "", "", ""], correctAnswer: 0 }
+      { id: uuidv4(), text: "", options: ["", "", "", ""], correctAnswer: 0, image: "" }
     ]
   });
+
   const [lessons, setLessons] = useState([]);
   const [loadingLessons, setLoadingLessons] = useState(true);
   useEffect(() => {
@@ -337,7 +339,11 @@ if (!isLoggedIn) {
       className="btn-cancel" 
       onClick={() => {
         const updated = newLesson.questions.filter((_, index) => index !== qIndex);
-        setNewLesson({...newLesson, questions: updated});
+        setNewLesson({
+        ...newLesson,
+        questions: newLesson.questions.filter(q => q.id !== questionId)
+      });
+
       }}
     >
       🗑️ Delete Question
@@ -352,8 +358,12 @@ if (!isLoggedIn) {
       onClick={() => {
         setNewLesson({
           ...newLesson,
-          questions: [...newLesson.questions, { text: "", image: "", options: ["", "", "", ""], correctAnswer: 0 }]
+          questions: [
+            ...newLesson.questions,
+            { id: uuidv4(), text: "", options: ["", "", "", ""], correctAnswer: 0, image: "" }
+          ]
         });
+
       }}
     >
       ➕ Add Another Question
