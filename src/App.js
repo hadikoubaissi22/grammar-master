@@ -170,6 +170,27 @@ function App() {
     setCurrentLesson(null);
     setShowResults(false);
   };
+const saveLesson = async () => {
+  try {
+    const response = await fetch("https://grammar-backend-api.vercel.app/lessons", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newLesson),
+    });
+
+    const data = await response.json();
+    if (response.ok) {
+      alert("✅ Lesson saved successfully!");
+      setShowAddLessonForm(false);
+      setNewLesson({ title: "", image: "", questions: [{ text: "", image: "", options: ["", "", "", ""], correctAnswer: 0 }] });
+    } else {
+      alert("❌ Error: " + data.message);
+    }
+  } catch (err) {
+    console.error(err);
+    alert("⚠️ Server error");
+  }
+};
 
 if (!isLoggedIn) {
     return (
@@ -240,28 +261,40 @@ if (!isLoggedIn) {
             ))}
           </div>
           {showAddLessonForm && (
-  <div className="modal-overlay">
-    <div className="modal">
-      <h2>Add New Lesson</h2>
+<div className="modal-overlay">
+  <div className="modal modern-modal">
+    <h2 className="modal-title">➕ Add New Lesson</h2>
+
+    {/* Lesson Info */}
+    <div className="form-group">
+      <label>Lesson Title</label>
       <input 
         type="text" 
-        placeholder="Lesson Title" 
+        placeholder="Enter lesson title" 
         value={newLesson.title} 
         onChange={(e) => setNewLesson({...newLesson, title: e.target.value})} 
       />
+    </div>
+
+    <div className="form-group">
+      <label>Lesson Image URL</label>
       <input 
         type="text" 
-        placeholder="Lesson Image URL" 
+        placeholder="Paste image URL" 
         value={newLesson.image} 
         onChange={(e) => setNewLesson({...newLesson, image: e.target.value})} 
       />
+    </div>
 
-      <h3>Questions</h3>
-      {newLesson.questions.map((q, qIndex) => (
-        <div key={qIndex} className="question-form">
+    <h3 className="section-title">Questions</h3>
+
+    {newLesson.questions.map((q, qIndex) => (
+      <div key={qIndex} className="question-form">
+        <div className="form-group">
+          <label>Question Text</label>
           <input 
             type="text" 
-            placeholder="Question text" 
+            placeholder="Enter question text" 
             value={q.text} 
             onChange={(e) => {
               const updated = [...newLesson.questions];
@@ -269,12 +302,34 @@ if (!isLoggedIn) {
               setNewLesson({...newLesson, questions: updated});
             }} 
           />
+        </div>
+
+        <div className="form-group">
+          <label>Upload Question Image</label>
+          <input 
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              const file = e.target.files[0];
+              if (file) {
+                const imageUrl = URL.createObjectURL(file);
+                const updated = [...newLesson.questions];
+                updated[qIndex].image = imageUrl;
+                setNewLesson({...newLesson, questions: updated});
+              }
+            }}
+          />
+          {q.image && <img src={q.image} alt="preview" className="preview-img" />}
+        </div>
+
+        <div className="options-container">
+          <label>Options</label>
           {q.options.map((opt, oIndex) => (
             <input 
               key={oIndex}
               type="text"
-              placeholder={`Option ${oIndex+1}`}
-              value={opt}
+              placeholder={`Option ${oIndex+1}`} 
+              value={opt} 
               onChange={(e) => {
                 const updated = [...newLesson.questions];
                 updated[qIndex].options[oIndex] = e.target.value;
@@ -282,49 +337,55 @@ if (!isLoggedIn) {
               }}
             />
           ))}
-          <label>
-            Correct Answer:
-            <select 
-              value={q.correctAnswer}
-              onChange={(e) => {
-                const updated = [...newLesson.questions];
-                updated[qIndex].correctAnswer = parseInt(e.target.value);
-                setNewLesson({...newLesson, questions: updated});
-              }}
-            >
-              {q.options.map((_, idx) => (
-                <option key={idx} value={idx}>Option {idx+1}</option>
-              ))}
-            </select>
-          </label>
         </div>
-      ))}
 
+        <div className="form-group">
+          <label>Correct Answer</label>
+          <select 
+            value={q.correctAnswer}
+            onChange={(e) => {
+              const updated = [...newLesson.questions];
+              updated[qIndex].correctAnswer = parseInt(e.target.value);
+              setNewLesson({...newLesson, questions: updated});
+            }}
+          >
+            {q.options.map((_, idx) => (
+              <option key={idx} value={idx}>Option {idx+1}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+    ))}
+
+    <button 
+      className="btn-secondary"
+      onClick={() => {
+        setNewLesson({
+          ...newLesson,
+          questions: [...newLesson.questions, { text: "", image: "", options: ["", "", "", ""], correctAnswer: 0 }]
+        });
+      }}
+    >
+      ➕ Add Another Question
+    </button>
+
+    <div className="modal-actions">
       <button 
+        className="btn-primary"
         onClick={() => {
-          setNewLesson({
-            ...newLesson,
-            questions: [...newLesson.questions, { text: "", options: ["", "", "", ""], correctAnswer: 0 }]
-          });
+          lessons.push({...newLesson, id: lessons.length+1});
+          setShowAddLessonForm(false);
+          setNewLesson({ title: "", image: "", questions: [{ text: "", image: "", options: ["", "", "", ""], correctAnswer: 0 }] });
+          saveLesson();
         }}
       >
-        ➕ Add Another Question
+        💾 Save Lesson
       </button>
-
-      <div className="modal-actions">
-        <button 
-          onClick={() => {
-            lessons.push({...newLesson, id: lessons.length+1});
-            setShowAddLessonForm(false);
-            setNewLesson({ title: "", image: "", questions: [{ text: "", options: ["", "", "", ""], correctAnswer: 0 }] });
-          }}
-        >
-          Save Lesson
-        </button>
-        <button onClick={() => setShowAddLessonForm(false)}>Cancel</button>
-      </div>
+      <button className="btn-cancel" onClick={() => setShowAddLessonForm(false)}>❌ Cancel</button>
     </div>
   </div>
+</div>
+
 )}
         </div>
       </div>
