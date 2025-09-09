@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
 import { FaPlus } from "react-icons/fa"; // plus icon
+import imageCompression from 'browser-image-compression';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
@@ -266,17 +267,31 @@ if (!isLoggedIn) {
       <input 
         type="file"
         accept="image/*"
-        onChange={(e) => {
+        onChange={async (e) => {
           const file = e.target.files[0];
-          if (file) {
+          if (!file) return;
+
+          try {
+            // Compress image
+            const options = {
+              maxSizeMB: 0.2, // target max 0.2 MB
+              maxWidthOrHeight: 800, // max dimension
+              useWebWorker: true,
+            };
+            const compressedFile = await imageCompression(file, options);
+
+            // Convert compressed file to Base64
             const reader = new FileReader();
             reader.onloadend = () => {
-              const base64String = reader.result; // This is the actual Base64 string
+              const base64String = reader.result;
               const updated = [...newLesson.questions];
-              updated[qIndex].image = base64String; // Save Base64 instead of blob
-              setNewLesson({...newLesson, questions: updated});
+              updated[qIndex].image = base64String;
+              setNewLesson({ ...newLesson, questions: updated });
             };
-            reader.readAsDataURL(file);
+            reader.readAsDataURL(compressedFile);
+
+          } catch (error) {
+            console.error("Image compression error:", error);
           }
         }}
       />
