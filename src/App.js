@@ -262,7 +262,7 @@ if (!isLoggedIn) {
     </div>
 
     <div className="form-group">
-      <label>Upload Question Image</label>
+      <label>Upload Question Image's</label>
       <input 
         type="file"
         accept="image/*"
@@ -271,15 +271,16 @@ if (!isLoggedIn) {
           if (file) {
             const reader = new FileReader();
             reader.onloadend = () => {
-              const base64String = reader.result; // Base64 string
+              const base64String = reader.result; // This is the actual Base64 string
               const updated = [...newLesson.questions];
-              updated[qIndex].image = base64String;
+              updated[qIndex].image = base64String; // Save Base64 instead of blob
               setNewLesson({...newLesson, questions: updated});
             };
             reader.readAsDataURL(file);
           }
         }}
       />
+
       {q.image && <img src={q.image} alt="preview" className="preview-img" />}
     </div>
 
