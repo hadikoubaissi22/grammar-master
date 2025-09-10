@@ -60,6 +60,8 @@ function App() {
   const [deletingLesson, setDeletingLesson] = useState(null);
   const [savingLesson, setSavingLesson] = useState(false);
   const [imageSizeError, setImageSizeError] = useState("");
+  const [validationErrors, setValidationErrors] = useState({});
+
 
   useEffect(() => {
     fetchLessons();
@@ -105,16 +107,16 @@ function App() {
         setLoginError('');
         
         // Success notification
-        MySwal.fire({
-          icon: 'success',
-          title: 'Welcome back!',
-          showConfirmButton: false,
-          timer: 1500,
-          background: '#7E6EF9',
-          color: 'white'
-        });
+        // MySwal.fire({
+        //   icon: 'success',
+        //   title: 'Welcome back!',
+        //   showConfirmButton: false,
+        //   timer: 1500,
+        //   background: '#7E6EF9',
+        //   color: 'white'
+        // });
       } else {
-        setLoginError(data.message || 'Login failed');
+        setLoginError(data.message || loginError || 'Login failed');
         MySwal.fire({
           icon: 'error',
           title: 'Login Failed',
@@ -135,6 +137,43 @@ function App() {
       setLoading(false);
     }
   };
+
+  const validateLesson = () => {
+    const errors = {};
+    let firstErrorField = null;
+
+    // Lesson title
+    if (!newLesson.title.trim()) {
+      errors.title = "Lesson title is required";
+      if (!firstErrorField) firstErrorField = "title";
+    }
+
+    // Questions
+    newLesson.questions.forEach((q, qIndex) => {
+      if (!q.text.trim()) {
+        errors[`q${qIndex}-text`] = "Question text is required";
+        if (!firstErrorField) firstErrorField = `q${qIndex}-text`;
+      }
+      q.options.forEach((opt, oIndex) => {
+        if (!opt.trim()) {
+          errors[`q${qIndex}-opt${oIndex}`] = "Option is required";
+          if (!firstErrorField) firstErrorField = `q${qIndex}-opt${oIndex}`;
+        }
+      });
+    });
+
+    setValidationErrors(errors);
+
+    // Focus first error input
+    if (firstErrorField) {
+      const el = document.querySelector(`[data-field="${firstErrorField}"]`);
+      if (el) el.focus();
+      return false;
+    }
+
+    return true;
+  };
+
 
   const togglePasswordVisibility = () => {
     setShowPassword(prev => !prev);
@@ -182,6 +221,9 @@ function App() {
   };
 
   const saveLesson = async () => {
+    if (!validateLesson()) {
+      return; // Stops save if errors
+    }
     setSavingLesson(true);
     try {
       const response = await fetch("https://grammar-backend-api.vercel.app/lessons", {
@@ -474,17 +516,21 @@ function App() {
                   <FaPlus /> Add New Lesson
                 </h2>
 
+                {/* Lesson Title */}
                 <div className="form-group floating">
                   <input 
                     type="text" 
                     value={newLesson.title} 
+                    data-field="title"
+                    className={validationErrors.title ? "error-input" : ""}
                     onChange={(e) => setNewLesson({...newLesson, title: e.target.value})} 
-                    required
                   />
                   <label>Lesson Title</label>
+                  {validationErrors.title && <span className="error-message">{validationErrors.title}</span>}
                 </div>
 
-                <div className="form-group floating">
+                {/* Hidden Lesson Image URL (optional, not required) */}
+                <div className="form-group floating" style={{display:'none'}}>
                   <input 
                     type="text" 
                     value={newLesson.image} 
@@ -517,20 +563,26 @@ function App() {
                       )}
                     </div>
 
+                    {/* Question Text */}
                     <div className="form-group floating">
                       <input 
                         type="text" 
                         value={q.text} 
+                        data-field={`q${qIndex}-text`}
+                        className={validationErrors[`q${qIndex}-text`] ? "error-input" : ""}
                         onChange={(e) => {
                           const updated = [...newLesson.questions];
                           updated[qIndex].text = e.target.value;
                           setNewLesson({...newLesson, questions: updated});
                         }} 
-                        required
                       />
                       <label>Question Text</label>
+                      {validationErrors[`q${qIndex}-text`] && (
+                        <span className="error-message">{validationErrors[`q${qIndex}-text`]}</span>
+                      )}
                     </div>
 
+                    {/* Image Upload - Optional */}
                     <div className="form-group">
                       <label className="file-input-label">
                         <input 
@@ -548,6 +600,7 @@ function App() {
                       {q.image && <img src={q.image} alt="preview" className="preview-img" />}
                     </div>
 
+                    {/* Options */}
                     <div className="options-container">
                       <label>Answer Options</label>
                       {q.options.map((opt, oIndex) => (
@@ -556,18 +609,24 @@ function App() {
                             type="text"
                             placeholder=" "
                             value={opt} 
+                            data-field={`q${qIndex}-opt${oIndex}`}
+                            className={validationErrors[`q${qIndex}-opt${oIndex}`] ? "error-input" : ""}
                             onChange={(e) => {
                               const updated = [...newLesson.questions];
                               updated[qIndex].options[oIndex] = e.target.value;
                               setNewLesson({...newLesson, questions: updated});
                             }}
-                            required
                           />
                           <label>Option {oIndex + 1}</label>
+                          {validationErrors[`q${qIndex}-opt${oIndex}`] && (
+                            <span className="error-message">{validationErrors[`q${qIndex}-opt${oIndex}`]}</span>
+                          )}
                         </div>
+
                       ))}
                     </div>
 
+                    {/* Correct Answer Select */}
                     <div className="form-group">
                       <label>Correct Answer</label>
                       <select 
@@ -578,6 +637,7 @@ function App() {
                           setNewLesson({...newLesson, questions: updated});
                         }}
                         className="modern-select"
+                        required
                       >
                         {q.options.map((_, idx) => (
                           <option key={idx} value={idx}>Option {idx + 1}</option>
@@ -587,6 +647,7 @@ function App() {
                   </div>
                 ))}
 
+                {/* Add Question Button */}
                 <button 
                   className="btn-secondary full-width"
                   onClick={() => {
@@ -602,6 +663,7 @@ function App() {
                   <FaPlus /> Add Another Question
                 </button>
 
+                {/* Modal Actions */}
                 <div className="modal-actions">
                   <button 
                     className="btn-primary"
@@ -625,6 +687,7 @@ function App() {
               </div>
             </div>
           )}
+
         </div>
       </div>
     );

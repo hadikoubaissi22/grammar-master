@@ -1201,3 +1201,22 @@ button {
     margin: 0 auto;
   }
 }
+.error-message {
+  color: red;
+  font-size: 0.8rem;
+  margin-top: 4px;
+  display: block;
+}
+
+.error-input {
+  border: 1px solid red !important;
+  background-color: #ffe6e6;
+}
+.error-input::after {
+  content: "⚠️";
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
