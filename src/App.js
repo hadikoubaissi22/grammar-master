@@ -106,6 +106,12 @@ function App() {
     }
   };
 
+  useEffect(() => {
+    // Only attempt to fetch lessons if the user is considered logged in
+    if (isLoggedIn) {
+      fetchLessons();
+    }
+  }, [isLoggedIn]); // Dependency on isLoggedIn ensures it runs when login status changes
 
   const handleLogin = async (e) => {
     e.preventDefault();
