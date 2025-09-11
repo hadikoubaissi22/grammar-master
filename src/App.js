@@ -247,7 +247,7 @@ function App() {
     }
     setSavingLesson(true);
     try {
-      
+
       const token = localStorage.getItem("token"); // ✅ get saved token
 
       const response = await fetch("https://grammar-backend-api.vercel.app/lessons", {
@@ -312,8 +312,14 @@ function App() {
   const deleteLesson = async (lessonId) => {
     setDeletingLesson(lessonId);
     try {
+
+      const token = localStorage.getItem("token"); // ✅ get saved token
+
       const response = await fetch(`https://grammar-backend-api.vercel.app/lessons/${lessonId}`, {
         method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${token}`, // ✅ send token in header
+        },
       });
 
       const data = await response.json();
