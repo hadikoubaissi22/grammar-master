@@ -72,7 +72,25 @@ function App() {
       setLoadingLessons(true);
       // Simulate loading for skeleton effect
       await new Promise(resolve => setTimeout(resolve, 1200));
-      const response = await fetch("https://grammar-backend-api.vercel.app/lessons");
+
+      const token = localStorage.getItem("token"); // ✅ get saved token
+
+      const response = await fetch("https://grammar-backend-api.vercel.app/lessons", {
+        headers: {
+          "Authorization": `Bearer ${token}`,  // ✅ send token in header
+        },
+      });
+
+      if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+          // token missing, invalid or expired
+          localStorage.removeItem("token");
+          localStorage.removeItem("isLoggedIn");
+          window.location.href = "/login"; // redirect
+        }
+        throw new Error("Unauthorized or expired session");
+      }
+
       const data = await response.json();
       setLessons(data.lessons || []);
     } catch (err) {
@@ -87,6 +105,7 @@ function App() {
       setLoadingLessons(false);
     }
   };
+
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -104,6 +123,7 @@ function App() {
       if (response.ok) {
         setIsLoggedIn(true);
         localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem("token", data.token);
         setLoginError('');
         
         // Success notification
