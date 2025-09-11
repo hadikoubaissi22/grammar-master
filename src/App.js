@@ -247,10 +247,16 @@ function App() {
     }
     setSavingLesson(true);
     try {
+      
+      const token = localStorage.getItem("token"); // ✅ get saved token
+
       const response = await fetch("https://grammar-backend-api.vercel.app/lessons", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newLesson),
+        headers: {
+          "Authorization": `Bearer ${token}`, // ✅ send token in header
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(newLesson), // ✅ body is a sibling of headers
       });
 
       const data = await response.json();
