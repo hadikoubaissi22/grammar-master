@@ -63,9 +63,9 @@ function App() {
   const [validationErrors, setValidationErrors] = useState({});
 
 
-  useEffect(() => {
-    fetchLessons();
-  }, []);
+  // useEffect(() => {
+  //   fetchLessons();
+  // }, []);
 
   const fetchLessons = async () => {
     try {
@@ -135,6 +135,7 @@ function App() {
         //   background: '#7E6EF9',
         //   color: 'white'
         // });
+        await fetchLessons();
       } else {
         setLoginError(data.message || loginError || 'Login failed');
         MySwal.fire({
