@@ -66,52 +66,33 @@ function App() {
   // useEffect(() => {
   //   fetchLessons();
   // }, []);
-  const CACHE_KEY = "cached_lessons";
-  const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes in ms
+
   const fetchLessons = async () => {
     try {
       setLoadingLessons(true);
-
-      // ✅ Check cache first
-      const cached = localStorage.getItem(CACHE_KEY);
-      if (cached) {
-        const { data, timestamp } = JSON.parse(cached);
-        if (Date.now() - timestamp < CACHE_DURATION) {
-          setLessons(data);
-          setLoadingLessons(false);
-          return; // stop here, use cache
-        }
-      }
-
-      // Simulate skeleton loading
+      // Simulate loading for skeleton effect
       await new Promise(resolve => setTimeout(resolve, 1200));
 
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("token"); // ✅ get saved token
 
       const response = await fetch("https://grammar-backend-api.vercel.app/lessons", {
         headers: {
-          "Authorization": `Bearer ${token}`,
+          "Authorization": `Bearer ${token}`,  // ✅ send token in header
         },
       });
 
       if (!response.ok) {
         if (response.status === 401 || response.status === 403) {
+          // token missing, invalid or expired
           localStorage.removeItem("token");
           localStorage.removeItem("isLoggedIn");
-          window.location.href = "/login";
+          window.location.href = "/login"; // redirect
         }
         throw new Error("Unauthorized or expired session");
       }
 
       const data = await response.json();
       setLessons(data.lessons || []);
-
-      // ✅ Save to cache
-      localStorage.setItem(
-        CACHE_KEY,
-        JSON.stringify({ data: data.lessons || [], timestamp: Date.now() })
-      );
-
     } catch (err) {
       console.error("Error fetching lessons:", err);
       MySwal.fire({
@@ -126,10 +107,11 @@ function App() {
   };
 
   useEffect(() => {
+    // Only attempt to fetch lessons if the user is considered logged in
     if (isLoggedIn) {
       fetchLessons();
     }
-  }, [isLoggedIn]);
+  }, [isLoggedIn]); // Dependency on isLoggedIn ensures it runs when login status changes
 
   const handleLogin = async (e) => {
     e.preventDefault();
