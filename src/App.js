@@ -442,40 +442,34 @@ const handleImageUpload = async (e, qIndex) => {
   const file = e.target.files[0];
   if (!file) return;
 
-  // Check file size (50KB = 50 * 1024 bytes) 
-  const maxSize = 50 * 1024; 
-  if (file.size > maxSize) 
-  { 
-    setImageSizeError("Image size must be less than 50KB"); 
-    e.target.value = ""; 
-    // Clear the file input 
-    setTimeout(() => setImageSizeError(""), 3000); 
-    //  Clear error after 3 seconds 
-    return; 
+  // Check file size (50KB = 50 * 1024 bytes)
+  const maxSize = 50 * 1024;
+  if (file.size > maxSize) {
+    setImageSizeError("Image size must be less than 50KB");
+    e.target.value = ""; // Clear the file input
+    setTimeout(() => setImageSizeError(""), 3000); // Clear error after 3 seconds
+    return;
   }
 
   try {
     const options = {
-      // maxSizeMB: 0.05, // target max size 50KB
-      // maxWidthOrHeight: 800,
+      maxSizeMB: 0.05, // 50KB
+      maxWidthOrHeight: 800,
       useWebWorker: true,
       onProgress: (progress) => {
         setUploadProgress(prev => ({ ...prev, [qIndex]: progress }));
       },
     };
-
     const compressedFile = await imageCompression(file, options);
-
     const reader = new FileReader();
     reader.onloadend = () => {
       const base64String = reader.result;
       const updated = [...newLesson.questions];
       updated[qIndex].image = base64String;
       setNewLesson({ ...newLesson, questions: updated });
-      setUploadProgress(prev => ({ ...prev, [qIndex]: 100 })); // mark complete
+      setImageSizeError(""); // Clear any previous error
     };
     reader.readAsDataURL(compressedFile);
-
   } catch (error) {
     console.error("Image compression error:", error);
     MySwal.fire({
@@ -484,10 +478,8 @@ const handleImageUpload = async (e, qIndex) => {
       text: 'Failed to process the image. Please try again.',
       confirmButtonColor: '#7E6EF9'
     });
-    setUploadProgress(prev => ({ ...prev, [qIndex]: 0 })); // reset on error
   }
 };
-
 
 
   if (!isLoggedIn) {
