@@ -788,8 +788,12 @@ function App() {
                   </button>
                   <button 
                     className="btn-secondary" 
-                    onClick={() => setShowAddLessonForm(false)}
-                    disabled={savingLesson}
+                  onClick={() => {
+                    setShowAddLessonForm(false);
+                    setEditingLessonId(null);
+                    setNewLesson({ title: "", image: "", questions: [{ text: "", image: "", options: ["", "", "", ""], correctAnswer: 0 }] });
+                  }}
+                  disabled={savingLesson}
                   >
                     <FaTimes /> Cancel
                   </button>
