@@ -443,12 +443,12 @@ function App() {
     
     // Check file size (50KB = 50 * 1024 bytes)
     const maxSize = 50 * 1024;
-    if (file.size > maxSize) {
-      setImageSizeError("Image size must be less than 50KB");
-      e.target.value = ""; // Clear the file input
-      setTimeout(() => setImageSizeError(""), 3000); // Clear error after 3 seconds
-      return;
-    }
+    // if (file.size > maxSize) {
+    //   setImageSizeError("Image size must be less than 50KB");
+    //   e.target.value = ""; // Clear the file input
+    //   setTimeout(() => setImageSizeError(""), 3000); // Clear error after 3 seconds
+    //   return;
+    // }
     
     try {
       const options = {
