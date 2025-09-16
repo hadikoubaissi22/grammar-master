@@ -442,10 +442,22 @@ const handleImageUpload = async (e, qIndex) => {
   const file = e.target.files[0];
   if (!file) return;
 
+  // Check file size (50KB = 50 * 1024 bytes) 
+  const maxSize = 50 * 1024; 
+  if (file.size > maxSize) 
+  { 
+    setImageSizeError("Image size must be less than 50KB"); 
+    e.target.value = ""; 
+    // Clear the file input 
+    setTimeout(() => setImageSizeError(""), 3000); 
+    //  Clear error after 3 seconds 
+    return; 
+  }
+
   try {
     const options = {
-      maxSizeMB: 0.05, // target max size 50KB
-      maxWidthOrHeight: 800,
+      // maxSizeMB: 0.05, // target max size 50KB
+      // maxWidthOrHeight: 800,
       useWebWorker: true,
       onProgress: (progress) => {
         setUploadProgress(prev => ({ ...prev, [qIndex]: progress }));
