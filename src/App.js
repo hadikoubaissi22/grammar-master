@@ -1,7 +1,7 @@
 // App.js
 import React, { useEffect, useState } from 'react';
 import './App.css';
-import { FaPlus, FaEye, FaEyeSlash, FaSignOutAlt, FaArrowLeft, FaCheck, FaTimes, FaTrash } from "react-icons/fa";
+import { FaPlus, FaEye, FaEyeSlash, FaSignOutAlt, FaArrowLeft, FaCheck, FaTimes, FaTrash, FaEdit  } from "react-icons/fa";
 import { RiBookOpenFill, RiQuestionnaireFill } from "react-icons/ri";
 import { BsStars, BsLightningChargeFill } from "react-icons/bs";
 import imageCompression from 'browser-image-compression';
@@ -61,6 +61,7 @@ function App() {
   const [savingLesson, setSavingLesson] = useState(false);
   const [imageSizeError, setImageSizeError] = useState("");
   const [validationErrors, setValidationErrors] = useState({});
+  const [editingLessonId, setEditingLessonId] = useState(null);
 
 
   // useEffect(() => {
@@ -247,55 +248,111 @@ function App() {
     setShowResults(false);
   };
 
-  const saveLesson = async () => {
-    if (!validateLesson()) {
-      return; // Stops save if errors
-    }
-    setSavingLesson(true);
+  const updateLessonApi = async (lessonId, updatedLesson) => {
+    const token = localStorage.getItem("token"); // ✅ get saved token
+
     try {
-
-      const token = localStorage.getItem("token"); // ✅ get saved token
-
-      const response = await fetch("https://grammar-backend-api.vercel.app/lessons", {
-        method: "POST",
+      const response = await fetch(`https://grammar-backend-api.vercel.app/lessons/${lessonId}`, {
+        method: "PUT", // ✅ use PUT for update
         headers: {
           "Authorization": `Bearer ${token}`, // ✅ send token in header
           "Content-Type": "application/json"
         },
-        body: JSON.stringify(newLesson), // ✅ body is a sibling of headers
+        body: JSON.stringify(updatedLesson), // ✅ body is a sibling of headers
       });
 
       const data = await response.json();
-      if (response.ok) {
-        MySwal.fire({
-          icon: 'success',
-          title: 'Lesson Saved!',
-          text: 'Your lesson has been successfully saved.',
-          confirmButtonColor: '#7E6EF9'
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to update lesson");
+      }
+
+      return data; // ✅ return the updated lesson data
+    } catch (err) {
+      console.error("Update lesson error:", err);
+      throw err; // ✅ propagate error to caller
+    }
+  };
+
+
+  const saveLesson = async () => {
+    if (!validateLesson()) {
+      return; // Stops save if errors
+    }
+    if (editingLessonId) 
+    {
+      setSavingLesson(true);
+        try {
+          await updateLessonApi(editingLessonId, newLesson);
+          MySwal.fire({
+            icon: 'success',
+            title: 'Lesson Updated!',
+            text: 'Your lesson has been successfully updated.',
+            confirmButtonColor: '#7E6EF9'
+          });
+          setShowAddLessonForm(false);
+          setEditingLessonId(null);
+          setNewLesson({ title: "", image: "", questions: [{ text: "", image: "", options: ["", "", "", ""], correctAnswer: 0 }] });
+          fetchLessons(); // refresh list
+        } catch (err) {
+          console.error(err);
+          MySwal.fire({
+            icon: 'error',
+            title: 'Update Failed',
+            text: 'Please try again later',
+            confirmButtonColor: '#7E6EF9'
+          });
+        } finally {
+          
+          setSavingLesson(false);
+        }
+    }else{
+      setSavingLesson(true);
+      try {
+
+        const token = localStorage.getItem("token"); // ✅ get saved token
+
+        const response = await fetch("https://grammar-backend-api.vercel.app/lessons", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${token}`, // ✅ send token in header
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(newLesson), // ✅ body is a sibling of headers
         });
-        setShowAddLessonForm(false);
-        setNewLesson({ title: "", image: "", questions: [{ text: "", image: "", options: ["", "", "", ""], correctAnswer: 0 }] });
-        // Refresh the lessons list
-        fetchLessons();
-      } else {
+
+        const data = await response.json();
+        if (response.ok) {
+          MySwal.fire({
+            icon: 'success',
+            title: 'Lesson Saved!',
+            text: 'Your lesson has been successfully saved.',
+            confirmButtonColor: '#7E6EF9'
+          });
+          setShowAddLessonForm(false);
+          setNewLesson({ title: "", image: "", questions: [{ text: "", image: "", options: ["", "", "", ""], correctAnswer: 0 }] });
+          // Refresh the lessons list
+          fetchLessons();
+        } else {
+          MySwal.fire({
+            icon: 'error',
+            title: 'Save Failed',
+            text: data.message || 'Unable to save lesson',
+            confirmButtonColor: '#7E6EF9'
+          });
+        }
+      } catch (err) {
+        console.error(err);
         MySwal.fire({
           icon: 'error',
-          title: 'Save Failed',
-          text: data.message || 'Unable to save lesson',
+          title: 'Server Error',
+          text: 'Please try again later',
           confirmButtonColor: '#7E6EF9'
         });
-      }
-    } catch (err) {
-      console.error(err);
-      MySwal.fire({
-        icon: 'error',
-        title: 'Server Error',
-        text: 'Please try again later',
-        confirmButtonColor: '#7E6EF9'
-      });
-    } finally {
-      setSavingLesson(false);
-    }
+      } finally {
+        setSavingLesson(false);
+      } 
+  }
   };
 
   const confirmLogout = () => {
@@ -534,6 +591,20 @@ function App() {
                     ) : (
                       <FaTrash />
                     )}
+                  </button>
+                  <button 
+                      className="edit-lesson-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowAddLessonForm(true);
+                        setNewLesson({
+                          ...lesson,
+                          questions: lesson.questions.map(q => ({ ...q }))
+                        });
+                        setEditingLessonId(lesson.id); // <- store the lesson id for update
+                      }}
+                    >
+                    <FaEdit />
                   </button>
                   <div className="lesson-content" onClick={() => startLesson(lesson)}>
                     <div className="lesson-icon">

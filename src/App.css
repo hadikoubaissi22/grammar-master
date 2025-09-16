@@ -1100,6 +1100,38 @@ button {
   animation: spin 1s linear infinite;
 }
 
+.edit-lesson-btn {
+  position: absolute;
+  top: 12px;
+  right: 75px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #718096;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 10;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.edit-lesson-btn:hover {
+  background: #dffed7;
+  color: #2daa2d;
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.edit-lesson-btn:active {
+  transform: scale(0.95);
+}
+
+.edit-lesson-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
 /* Lesson card positioning */
 .lesson-card {
   position: relative;
@@ -1194,6 +1226,10 @@ button {
   .delete-lesson-btn {
     top: 8px;
     right: 8px;
+  }
+  .edit-lesson-btn {
+    top: 8px;
+    right: 75px;
   }
   
   .swal2-popup {
