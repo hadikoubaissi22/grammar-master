@@ -62,6 +62,7 @@ function App() {
   const [imageSizeError, setImageSizeError] = useState("");
   const [validationErrors, setValidationErrors] = useState({});
   const [editingLessonId, setEditingLessonId] = useState(null);
+  const [uploadProgress, setUploadProgress] = useState({});
 
 
   // useEffect(() => {
@@ -447,20 +448,19 @@ const handleImageUpload = async (e, qIndex) => {
       maxWidthOrHeight: 800,
       useWebWorker: true,
       onProgress: (progress) => {
-        console.log(`Compression Progress: ${progress}%`);
+        setUploadProgress(prev => ({ ...prev, [qIndex]: progress }));
       },
     };
 
-    // Compress the image
     const compressedFile = await imageCompression(file, options);
 
-    // Convert to base64
     const reader = new FileReader();
     reader.onloadend = () => {
       const base64String = reader.result;
       const updated = [...newLesson.questions];
       updated[qIndex].image = base64String;
       setNewLesson({ ...newLesson, questions: updated });
+      setUploadProgress(prev => ({ ...prev, [qIndex]: 100 })); // mark complete
     };
     reader.readAsDataURL(compressedFile);
 
@@ -472,8 +472,10 @@ const handleImageUpload = async (e, qIndex) => {
       text: 'Failed to process the image. Please try again.',
       confirmButtonColor: '#7E6EF9'
     });
+    setUploadProgress(prev => ({ ...prev, [qIndex]: 0 })); // reset on error
   }
 };
+
 
 
   if (!isLoggedIn) {
@@ -704,6 +706,17 @@ const handleImageUpload = async (e, qIndex) => {
                       </label>
                       {imageSizeError && (
                         <div className="error-message-small">{imageSizeError}</div>
+                      )}
+                      {/* Show compression/upload progress */}
+                      {uploadProgress[qIndex] && uploadProgress[qIndex] < 100 && (
+                        <div className="progress-bar-container">
+                          <div 
+                            className="progress-bar" 
+                            style={{ width: `${uploadProgress[qIndex]}%` }}
+                          >
+                            {Math.round(uploadProgress[qIndex])}%
+                          </div>
+                        </div>
                       )}
                       {q.image && <img src={q.image} alt="preview" className="preview-img" />}
                     </div>
