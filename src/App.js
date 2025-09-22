@@ -72,57 +72,71 @@ function App() {
   const [otp, setOtp] = useState('');
   const [userId, setUserId] = useState(null);
 
-  const handleRegister = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setLoginError('');
+const handleRegister = async (e) => {
+  e.preventDefault();
 
-    try {
-      const response = await fetch('https://grammar-backend-api.vercel.app/api/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fullName, email, username, password }),
+  // ✅ client-side password validation
+  const passwordRegex = /^(?=.*[!@#$%^&*(),.?":{}|<>])[A-Za-z\d!@#$%^&*(),.?":{}|<>]{8,}$/;
+  if (!passwordRegex.test(password)) {
+    setLoginError('Password must be at least 8 characters long and include at least one special character');
+    MySwal.fire({
+        icon: 'error',
+        title: 'Registration Failed',
+        text: 'Password must be at least 8 characters long and include at least one special character',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#7E6EF9',
+       
       });
+    return; // stop execution, don't touch loading
+  }
 
-      const data = await response.json();
+  // ✅ reset error & enable loading only if password valid
+  setLoginError('');
+  setLoading(true);
 
-      if (response.ok) {
-        setUserId(data.userId);
-        setShowOtp(true); // show OTP form
-        MySwal.fire({
-          icon: 'info',
-          title: 'Verify Your Email',
-          text: 'An OTP has been sent to your email. Please enter it below.',
-          confirmButtonColor: '#7E6EF9'
-        });
-      } else {
-        setLoginError(data.message || 'Registration failed');
-        MySwal.fire({
-          icon: 'error',
-          title: 'Registration Failed',
-          text: data.message,
-          confirmButtonText: 'OK',
-          showDenyButton: true,
-          denyButtonText: 'Verify OTP',
-          confirmButtonColor: '#7E6EF9',
-          denyButtonColor: '#4CAF50'
-        }).then((result) => {
-          if (result.isDenied) {
-            // redirect user to OTP form
-            setShowOtp(true); // show OTP form state in React
-            // or navigate to OTP page if you use react-router
-            // navigate('/verify-otp');
-          }
-        });
+  try {
+    const response = await fetch('https://grammar-backend-api.vercel.app/api/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fullName, email, username, password }),
+    });
 
-      }
-    } catch (err) {
-      console.error(err);
-      setLoginError('Server error');
-    } finally {
-      setLoading(false);
+    const data = await response.json();
+
+    if (response.ok) {
+      setUserId(data.userId);
+      setShowOtp(true); // show OTP form
+      MySwal.fire({
+        icon: 'info',
+        title: 'Verify Your Email',
+        text: 'An OTP has been sent to your email. Please enter it below.',
+        confirmButtonColor: '#7E6EF9'
+      });
+    } else {
+      setLoginError(data.message || 'Registration failed');
+      MySwal.fire({
+        icon: 'error',
+        title: 'Registration Failed',
+        text: data.message,
+        confirmButtonText: 'OK',
+        showDenyButton: true,
+        denyButtonText: 'Verify OTP',
+        confirmButtonColor: '#7E6EF9',
+        denyButtonColor: '#4CAF50'
+      }).then((result) => {
+        if (result.isDenied) {
+          setShowOtp(true); // show OTP form state in React
+        }
+      });
     }
-  };
+  } catch (err) {
+    console.error(err);
+    setLoginError('Server error');
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
@@ -703,6 +717,7 @@ if (isRegister) {
                 id="regPassword"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                autoComplete='new-password'
                 required
               />
               <label htmlFor="regPassword">Password</label>
