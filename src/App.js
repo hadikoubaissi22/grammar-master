@@ -71,6 +71,8 @@ function App() {
   const [showOtp, setShowOtp] = useState(false);
   const [otp, setOtp] = useState('');
   const [userId, setUserId] = useState(null);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [forgot_email, setforgot_email] = useState('');
 
 const handleRegister = async (e) => {
   e.preventDefault();
@@ -222,6 +224,49 @@ const handleRegister = async (e) => {
     }
   };
 
+
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const response = await fetch('https://grammar-backend-api.vercel.app/api/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ forgot_email }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        MySwal.fire({
+          icon: 'success',
+          title: 'Password Reset Successful!',
+          text: 'Your password has been reset. You can now log in with your new password.',
+          confirmButtonColor: '#7E6EF9'
+        });
+         setShowForgotPassword(false);
+         setforgot_email(false);
+      } else {
+        MySwal.fire({
+          icon: 'error',
+          title: 'Reset password Error',
+          text: data.message,
+          confirmButtonColor: '#7E6EF9'
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      MySwal.fire({
+        icon: 'error',
+        title: 'Connection Error',
+        text: 'Unable to reset your password',
+        confirmButtonColor: '#7E6EF9'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchLessons = async () => {
     try {
@@ -664,6 +709,27 @@ const handleImageUpload = async (e, qIndex) => {
     );
   }
 
+  if (showForgotPassword) {
+    return (
+      <form onSubmit={handleForgotPassword} className="login-form" style={{maxWidth: '400px', margin: '50px auto', padding: '20px', border: '1px solid #ddd', borderRadius: '8px'}}>
+        <h2>Forgot Password</h2>
+        <div className="input-group floating">
+          <input
+            type="email"
+            id="forgot_email"
+            value={forgot_email}
+            onChange={(e) => setforgot_email(e.target.value)}
+            required
+          />
+          <label htmlFor="forgot_email">Enter your email</label>
+        </div>
+        <button type="submit" className="login-btn" disabled={loading}>
+          {loading ? <div className="spinner"></div> : "Reset Password"}
+        </button>
+      </form>
+    );
+  }
+
 if (isRegister) {
     return (
       <div className="app login-page">
@@ -785,8 +851,11 @@ if (isRegister) {
               {loading ? <div className="spinner"></div> : 
                 <><BsLightningChargeFill className="btn-icon" /> Log In</>}
             </button>
+            <p className="demo-credentials">
+              <a href="#" onClick={() => setShowForgotPassword(true)}>Forgot Password</a>
+            </p>
   
-            <p className="demo-credentials">Demo credentials: username: teacher, password: password</p>
+            {/* <p className="demo-credentials">Demo credentials: username: teacher, password: password</p> */}
             <p className="demo-credentials">
               Don't have an account? <a href="#" onClick={() => setIsRegister(true)}>Register now</a>
             </p>
