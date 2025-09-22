@@ -101,8 +101,20 @@ function App() {
           icon: 'error',
           title: 'Registration Failed',
           text: data.message,
-          confirmButtonColor: '#7E6EF9'
+          confirmButtonText: 'OK',
+          showDenyButton: true,
+          denyButtonText: 'Verify OTP',
+          confirmButtonColor: '#7E6EF9',
+          denyButtonColor: '#4CAF50'
+        }).then((result) => {
+          if (result.isDenied) {
+            // redirect user to OTP form
+            setShowOtp(true); // show OTP form state in React
+            // or navigate to OTP page if you use react-router
+            // navigate('/verify-otp');
+          }
         });
+
       }
     } catch (err) {
       console.error(err);
@@ -120,7 +132,7 @@ function App() {
       const response = await fetch('https://grammar-backend-api.vercel.app/api/verify-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, otp }),
+        body: JSON.stringify({ email, otp }),
       });
 
       const data = await response.json();
@@ -148,6 +160,47 @@ function App() {
         icon: 'error',
         title: 'Connection Error',
         text: 'Unable to verify OTP',
+        confirmButtonColor: '#7E6EF9'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResendOtp = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const response = await fetch('https://grammar-backend-api.vercel.app/api/resend-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        MySwal.fire({
+          icon: 'success',
+          title: 'OTP Resent!',
+          text: 'Check your email for the new OTP.',
+          confirmButtonColor: '#7E6EF9'
+        });
+      } else {
+        MySwal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: data.message,
+          confirmButtonColor: '#7E6EF9'
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      MySwal.fire({
+        icon: 'error',
+        title: 'Connection Error',
+        text: 'Unable to resend OTP',
         confirmButtonColor: '#7E6EF9'
       });
     } finally {
@@ -589,6 +642,10 @@ const handleImageUpload = async (e, qIndex) => {
         <button type="submit" className="login-btn" disabled={loading}>
           {loading ? <div className="spinner"></div> : "Verify OTP"}
         </button>
+        <p className="demo-credentials">
+          Didn’t get the code? <a href="#" onClick={handleResendOtp}>Resend OTP</a>
+        </p>
+
       </form>
     );
   }
