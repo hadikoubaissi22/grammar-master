@@ -574,7 +574,7 @@ const handleImageUpload = async (e, qIndex) => {
 
   if (showOtp) {
     return (
-      <form onSubmit={handleVerifyOtp} className="login-form">
+      <form onSubmit={handleVerifyOtp} className="login-form" style={{maxWidth: '400px', margin: '50px auto', padding: '20px', border: '1px solid #ddd', borderRadius: '8px'}}>
         <h2>Email Verification</h2>
         <div className="input-group floating">
           <input
