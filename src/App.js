@@ -43,7 +43,10 @@ function App() {
   const [showResults, setShowResults] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('');
+  const [fullName, setFullName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [showPasswordRegister, setShowPasswordRegister] = useState(false);
   const [loginError, setLoginError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showAddLessonForm, setShowAddLessonForm] = useState(false);
@@ -63,11 +66,95 @@ function App() {
   const [validationErrors, setValidationErrors] = useState({});
   const [editingLessonId, setEditingLessonId] = useState(null);
   const [uploadProgress, setUploadProgress] = useState({});
+  const [isRegister, setIsRegister] = useState(false);
 
+  const [showOtp, setShowOtp] = useState(false);
+  const [otp, setOtp] = useState('');
+  const [userId, setUserId] = useState(null);
 
-  // useEffect(() => {
-  //   fetchLessons();
-  // }, []);
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setLoginError('');
+
+    try {
+      const response = await fetch('https://grammar-backend-api.vercel.app/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fullName, email, username, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setUserId(data.userId);
+        setShowOtp(true); // show OTP form
+        MySwal.fire({
+          icon: 'info',
+          title: 'Verify Your Email',
+          text: 'An OTP has been sent to your email. Please enter it below.',
+          confirmButtonColor: '#7E6EF9'
+        });
+      } else {
+        setLoginError(data.message || 'Registration failed');
+        MySwal.fire({
+          icon: 'error',
+          title: 'Registration Failed',
+          text: data.message,
+          confirmButtonColor: '#7E6EF9'
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      setLoginError('Server error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const response = await fetch('https://grammar-backend-api.vercel.app/api/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, otp }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        MySwal.fire({
+          icon: 'success',
+          title: 'Verified!',
+          text: 'Your account has been verified. You can now log in.',
+          confirmButtonColor: '#7E6EF9'
+        });
+         setShowOtp(false);
+         setIsRegister(false);
+      } else {
+        MySwal.fire({
+          icon: 'error',
+          title: 'OTP Error',
+          text: data.message,
+          confirmButtonColor: '#7E6EF9'
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      MySwal.fire({
+        icon: 'error',
+        title: 'Connection Error',
+        text: 'Unable to verify OTP',
+        confirmButtonColor: '#7E6EF9'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
   const fetchLessons = async () => {
     try {
@@ -88,7 +175,8 @@ function App() {
           // token missing, invalid or expired
           localStorage.removeItem("token");
           localStorage.removeItem("isLoggedIn");
-          window.location.href = "/login"; // redirect
+          setIsLoggedIn(false); // Update state to trigger re-render
+          // window.location.href = "/login"; // This line is not needed with the state change
         }
         throw new Error("Unauthorized or expired session");
       }
@@ -134,7 +222,6 @@ function App() {
         localStorage.setItem("token", data.token);
         setLoginError('');
         
-        // Success notification
         // MySwal.fire({
         //   icon: 'success',
         //   title: 'Welcome back!',
@@ -206,6 +293,10 @@ function App() {
 
   const togglePasswordVisibility = () => {
     setShowPassword(prev => !prev);
+  };
+
+  const togglePasswordVisibilityRegister = () => {
+    setShowPasswordRegister(prev => !prev);
   };
 
   const startLesson = (lesson) => {
@@ -481,7 +572,101 @@ const handleImageUpload = async (e, qIndex) => {
   }
 };
 
+  if (showOtp) {
+    return (
+      <form onSubmit={handleVerifyOtp} className="login-form">
+        <h2>Email Verification</h2>
+        <div className="input-group floating">
+          <input
+            type="text"
+            id="otp"
+            value={otp}
+            onChange={(e) => setOtp(e.target.value)}
+            required
+          />
+          <label htmlFor="otp">Enter OTP</label>
+        </div>
+        <button type="submit" className="login-btn" disabled={loading}>
+          {loading ? <div className="spinner"></div> : "Verify OTP"}
+        </button>
+      </form>
+    );
+  }
 
+if (isRegister) {
+    return (
+      <div className="app login-page">
+        <div className="login-container">
+          <div className="login-header">
+            <div className="logo">
+              <RiBookOpenFill className="logo-icon" />
+              <h1>Grammar Master</h1>
+            </div>
+            <p>Fun grammar lessons for 5th graders</p>
+          </div>
+  
+          <form onSubmit={handleRegister} className="login-form"> {/* Use the correct handler */}
+            <h2>Teacher Registration</h2>
+            <div className="input-group floating">
+              <input
+                type="text"
+                id="fullName"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                required
+              />
+              <label htmlFor="fullName">Full Name</label>
+              <span className="input-icon">👨‍🏫</span>
+            </div>
+            <div className="input-group floating">
+              <input
+                type="email"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+              <label htmlFor="email">Email</label>
+              <span className="input-icon">✉️</span>
+            </div>
+            <div className="input-group floating">
+              <input
+                type="text"
+                id="regUsername"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+              />
+              <label htmlFor="regUsername">Username</label>
+              <span className="input-icon">👤</span>
+            </div>
+            <div className="input-group floating password-group">
+              <input
+                type={showPasswordRegister ? 'text' : 'password'} 
+                id="regPassword"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <label htmlFor="regPassword">Password</label>
+              <span className="input-icon">🔒</span>
+              <button type="button" className="toggle-password" onClick={togglePasswordVisibilityRegister}>
+                {showPasswordRegister ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
+            <button type="submit" className="login-btn" disabled={loading}>
+              {loading ? <div className="spinner"></div> : 
+              <><BsLightningChargeFill className="btn-icon" /> Register</>}
+            </button>
+            <p className="demo-credentials">
+              Already have an account? <a href="#" onClick={() => setIsRegister(false)}>Back to Login</a>
+            </p>
+          </form>
+        </div>
+      </div>
+    );
+  }
+  
   if (!isLoggedIn) {
     return (
       <div className="app login-page">
@@ -528,8 +713,11 @@ const handleImageUpload = async (e, qIndex) => {
               {loading ? <div className="spinner"></div> : 
                 <><BsLightningChargeFill className="btn-icon" /> Log In</>}
             </button>
-
+  
             <p className="demo-credentials">Demo credentials: username: teacher, password: password</p>
+            <p className="demo-credentials">
+              Don't have an account? <a href="#" onClick={() => setIsRegister(true)}>Register now</a>
+            </p>
           </form>
         </div>
       </div>
