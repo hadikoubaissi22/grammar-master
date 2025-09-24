@@ -1,7 +1,7 @@
 // App.js
 import React, { useEffect, useState } from 'react';
 import './App.css';
-import { FaPlus, FaEye, FaEyeSlash, FaSignOutAlt, FaArrowLeft, FaCheck, FaTimes, FaTrash, FaEdit  } from "react-icons/fa";
+import { FaPlus, FaEye, FaEyeSlash, FaSignOutAlt, FaArrowLeft, FaCheck, FaTimes, FaTrash, FaEdit, FaBook, FaUserGraduate  } from "react-icons/fa";
 import { RiBookOpenFill, RiQuestionnaireFill } from "react-icons/ri";
 import { BsStars, BsLightningChargeFill } from "react-icons/bs";
 import imageCompression from 'browser-image-compression';
@@ -73,6 +73,8 @@ function App() {
   const [userId, setUserId] = useState(null);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [forgot_email, setforgot_email] = useState('');
+  const [userType, setUserType] = useState(localStorage.getItem("user_type") || "Teacher");
+  const [view, setView] = useState("lessons"); 
 
 const handleRegister = async (e) => {
   e.preventDefault();
@@ -272,7 +274,7 @@ const handleRegister = async (e) => {
     try {
       setLoadingLessons(true);
       // Simulate loading for skeleton effect
-      await new Promise(resolve => setTimeout(resolve, 1200));
+      // await new Promise(resolve => setTimeout(resolve, 1200));
 
       const token = localStorage.getItem("token"); // ✅ get saved token
 
@@ -332,6 +334,8 @@ const handleRegister = async (e) => {
         setIsLoggedIn(true);
         localStorage.setItem('isLoggedIn', 'true');
         localStorage.setItem("token", data.token);
+        localStorage.setItem("user_type", data.user_type);
+        setUserType(data.user_type);
         setLoginError('');
         
         // MySwal.fire({
@@ -874,15 +878,36 @@ if (isRegister) {
             <h1>Grammar Master</h1>
           </div>
           <div className="header-buttons">
+            {view === "lessons" ? (
             <button className="btn-primary add-btn" onClick={() => setShowAddLessonForm(true)}>
               <FaPlus /> Add Lesson
             </button>
+             ) : null}
+              {userType === "Admin" && (
+                <>
+                  {view === "lessons" ? (
+                    <button 
+                      className="btn-secondary classes-btn" 
+                      onClick={() => setView("classes")}
+                    >
+                      <FaUserGraduate /> Classes
+                    </button>
+                  ) : (
+                    <button 
+                      className="btn-secondary lessons-btn" 
+                      onClick={() => setView("lessons")}
+                    >
+                      <FaBook /> Lessons
+                    </button>
+                  )}
+                </>
+              )}
             <button className="btn-secondary logout-btn" onClick={confirmLogout}>
               <FaSignOutAlt /> Logout
             </button>
           </div>
         </header>
-        
+        {view === "lessons" ? (
         <div className="lessons-container">
           <div className="section-header">
             <h2>Choose a Lesson</h2>
@@ -1147,6 +1172,17 @@ if (isRegister) {
           )}
 
         </div>
+        ) : (
+          <div className="classes-container">
+            <div className="section-header">
+              <h2>All Classes</h2>
+              <button className="btn-primary" onClick={() => alert('Add Class functionality coming soon!')}>
+                <FaPlus /> Add Class
+              </button>
+            </div>
+            {/* TODO: map over classes and show table */}
+          </div>
+        )}
       </div>
     );
   }
