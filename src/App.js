@@ -878,11 +878,6 @@ if (isRegister) {
             <h1>Grammar Master</h1>
           </div>
           <div className="header-buttons">
-            {view === "lessons" ? (
-            <button className="btn-primary add-btn" onClick={() => setShowAddLessonForm(true)}>
-              <FaPlus /> Add Lesson
-            </button>
-             ) : null}
               {userType === "Admin" && (
                 <>
                   {view === "lessons" ? (
@@ -913,7 +908,11 @@ if (isRegister) {
             <h2>Choose a Lesson</h2>
             <p>Select a lesson to start practicing your grammar skills</p>
           </div>
-          
+            {view === "lessons" ? (
+              <button className="btn-primary add-btn" style={{marginBottom:'25px'}} onClick={() => setShowAddLessonForm(true)}>
+                <FaPlus /> Add Lesson
+              </button>
+            ) : null}
           <div className="lessons-grid">
             {loadingLessons ? (
               // Skeleton loaders
