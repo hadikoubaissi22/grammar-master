@@ -1272,5 +1272,39 @@ button {
   line-height: 20px;
   transition: width 0.2s ease;
 }
+.app-footer {
+  margin-top: 40px;
+  padding: 15px;
+  background: #f5f5f5;
+  border-top: 1px solid #ddd;
+  text-align: center;
+  font-size: 14px;
+  color: #555;
+}
+
+.footer-links {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.footer-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.footer-item a {
+  color: #555;
+  font-size: 18px;
+  transition: color 0.3s;
+}
+
+.footer-item a:hover {
+  color: #7E6EF9; /* match your theme color */
+}
+
 
 

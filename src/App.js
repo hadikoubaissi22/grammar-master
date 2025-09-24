@@ -1,7 +1,7 @@
 // App.js
 import React, { useEffect, useState } from 'react';
 import './App.css';
-import { FaPlus, FaEye, FaEyeSlash, FaSignOutAlt, FaArrowLeft, FaCheck, FaTimes, FaTrash, FaEdit, FaBook, FaUserGraduate  } from "react-icons/fa";
+import { FaPlus, FaEye, FaEyeSlash, FaSignOutAlt, FaArrowLeft, FaCheck, FaTimes, FaTrash, FaEdit, FaBook, FaUserGraduate,FaLinkedin, FaInstagram, FaEnvelope  } from "react-icons/fa";
 import { RiBookOpenFill, RiQuestionnaireFill } from "react-icons/ri";
 import { BsStars, BsLightningChargeFill } from "react-icons/bs";
 import imageCompression from 'browser-image-compression';
@@ -1182,6 +1182,30 @@ if (isRegister) {
             {/* TODO: map over classes and show table */}
           </div>
         )}
+        <footer className="app-footer">
+          <p>© {new Date().getFullYear()} Hadi Koubaissi</p>
+          <div className="footer-links">
+            <div className="footer-item">
+              <a href="https://linkedin.com/in/hadi-koubaissi" target="_blank" rel="noopener noreferrer">
+                <FaLinkedin />
+              </a>
+              <span>Hadi Koubaissi</span>
+            </div>
+            <div className="footer-item">
+              <a href="https://www.instagram.com/hadi_koubaissi/" target="_blank" rel="noopener noreferrer">
+                <FaInstagram />
+              </a>
+              <span>hadi_koubaissi</span>
+            </div>
+            <div className="footer-item">
+              <a href="mailto:koubaissihadi2@gmail.com">
+                <FaEnvelope />
+              </a>
+              <span>koubaissihadi2@gmail.com</span>
+            </div>
+          </div>
+        </footer>
+
       </div>
     );
   }
