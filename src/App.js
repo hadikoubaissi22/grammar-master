@@ -75,6 +75,8 @@ function App() {
   const [forgot_email, setforgot_email] = useState('');
   const [userType, setUserType] = useState(localStorage.getItem("user_type") || "Teacher");
   const [view, setView] = useState("lessons"); 
+  const [classes, setClasses] = useState([]);
+  const [loadingClasses, setLoadingClasses] = useState(false);
 
 const handleRegister = async (e) => {
   e.preventDefault();
@@ -310,10 +312,48 @@ const handleRegister = async (e) => {
     }
   };
 
+  const fetchClasses = async () => {
+    try {
+      setLoadingClasses(true);
+
+      const token = localStorage.getItem("token"); // ✅ get saved token
+
+      const response = await fetch("https://grammar-backend-api.vercel.app/classes", {
+        headers: {
+          "Authorization": `Bearer ${token}`, // ✅ send token in header
+        },
+      });
+
+      if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+          // token missing, invalid or expired
+          localStorage.removeItem("token");
+          localStorage.removeItem("isLoggedIn");
+          setIsLoggedIn(false); // Update state to trigger re-render
+        }
+        throw new Error("Unauthorized or expired session");
+      }
+
+      const data = await response.json();
+      setClasses(data.classes || []); // expecting { classes: [...] }
+    } catch (err) {
+      console.error("Error fetching classes:", err);
+      MySwal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Failed to load classes. Please try again later.",
+        confirmButtonColor: "#7E6EF9",
+      });
+    } finally {
+      setLoadingClasses(false);
+    }
+  };
+
   useEffect(() => {
     // Only attempt to fetch lessons if the user is considered logged in
     if (isLoggedIn) {
       fetchLessons();
+      fetchClasses();
     }
   }, [isLoggedIn]); // Dependency on isLoggedIn ensures it runs when login status changes
 
@@ -1179,7 +1219,34 @@ if (isRegister) {
                 <FaPlus /> Add Class
               </button>
             </div>
-            {/* TODO: map over classes and show table */}
+            {loadingClasses ? (
+                <p>Loading classes...</p>
+              ) : classes.length === 0 ? (
+                <p>No classes available.</p>
+              ) : (
+                <table className="classes-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Class Name</th>
+                      <th>Description</th>
+                      <th>Level</th>
+                      <th>Created At</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {classes.map((cls) => (
+                      <tr key={cls.id}>
+                        <td>{cls.id}</td>
+                        <td>{cls.name}</td>
+                        <td>{cls.description}</td>
+                        <td>{cls.level}</td>
+                        <td>{new Date(cls.created_at).toLocaleDateString()}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
           </div>
         )}
         <footer className="app-footer">
