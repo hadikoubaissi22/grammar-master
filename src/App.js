@@ -1,7 +1,8 @@
 // App.js
 import React, { useEffect, useState } from 'react';
 import './App.css';
-import { FaPlus, FaEye, FaEyeSlash, FaSignOutAlt, FaArrowLeft, FaCheck, FaTimes, FaTrash, FaEdit, FaBook, FaUserGraduate,FaLinkedin, FaInstagram, FaEnvelope  } from "react-icons/fa";
+import { FaPlus, FaEye, FaEyeSlash, FaSignOutAlt, FaArrowLeft, FaCheck, FaTimes, FaTrash, FaEdit, FaBook, FaUserGraduate,FaLinkedin, FaInstagram, 
+  FaEnvelope,FaChalkboardTeacher } from "react-icons/fa";
 import { RiBookOpenFill, RiQuestionnaireFill } from "react-icons/ri";
 import { BsStars, BsLightningChargeFill } from "react-icons/bs";
 import imageCompression from 'browser-image-compression';
@@ -1222,7 +1223,11 @@ if (isRegister) {
             {loadingClasses ? (
                 <p>Loading classes...</p>
               ) : classes.length === 0 ? (
-                <p>No classes available.</p>
+                  <div className="no-classes">
+                    <FaChalkboardTeacher className="no-classes-icon" />
+                    <h3>No classes available</h3>
+                    <p>Click on <strong>Add Class</strong> to create your first class!</p>
+                  </div>
               ) : (
                 <table className="classes-table">
                   <thead>

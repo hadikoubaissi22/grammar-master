@@ -1305,6 +1305,53 @@ button {
 .footer-item a:hover {
   color: #7E6EF9; /* match your theme color */
 }
+.classes-container {
+  padding: 20px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.classes-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.classes-table th,
+.classes-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+.classes-table th {
+  background-color: #f4f4f4;
+  text-align: left;
+}
+.no-classes {
+  text-align: center;
+  margin-top: 50px;
+  color: #666;
+}
+
+.no-classes-icon {
+  font-size: 80px;
+  color: #7E6EF9; /* match your theme color */
+  margin-bottom: 20px;
+}
+
+.no-classes h3 {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.no-classes p {
+  font-size: 16px;
+  color: #999;
+}
 
 
 
