@@ -7,6 +7,7 @@ import { RiBookOpenFill, RiQuestionnaireFill } from "react-icons/ri";
 import { BsStars, BsLightningChargeFill } from "react-icons/bs";
 import imageCompression from 'browser-image-compression';
 import { v4 as uuidv4 } from 'uuid';
+import DataTable from "react-data-table-component";
 
 // Import SweetAlert2 with a safe fallback
 let MySwal;
@@ -357,6 +358,20 @@ const handleRegister = async (e) => {
       fetchClasses();
     }
   }, [isLoggedIn]); // Dependency on isLoggedIn ensures it runs when login status changes
+
+  // Define columns for DataTable
+  const columns = [
+    { name: "ID", selector: (row) => row.id, sortable: true, width: "70px" },
+    { name: "Class Name", selector: (row) => row.name, sortable: true },
+    { name: "Description", selector: (row) => row.description },
+    { name: "Level", selector: (row) => row.level, sortable: true },
+    { 
+      name: "Created At", 
+      selector: (row) => new Date(row.created_at).toLocaleDateString(), 
+      sortable: true 
+    },
+  ];
+
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -1229,28 +1244,15 @@ if (isRegister) {
                     <p>Click on <strong>Add Class</strong> to create your first class!</p>
                   </div>
               ) : (
-                <table className="classes-table">
-                  <thead>
-                    <tr>
-                      <th>ID</th>
-                      <th>Class Name</th>
-                      <th>Description</th>
-                      <th>Level</th>
-                      <th>Created At</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {classes.map((cls) => (
-                      <tr key={cls.id}>
-                        <td>{cls.id}</td>
-                        <td>{cls.name}</td>
-                        <td>{cls.description}</td>
-                        <td>{cls.level}</td>
-                        <td>{new Date(cls.created_at).toLocaleDateString()}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                <DataTable
+                  columns={columns}
+                  data={classes}
+                  pagination
+                  highlightOnHover
+                  striped
+                  responsive
+                  defaultSortFieldId={1}
+                />
               )}
           </div>
         )}
