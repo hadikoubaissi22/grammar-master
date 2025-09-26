@@ -287,21 +287,6 @@ button {
   text-align: center;
 }
 
-.section-header {
-  margin-bottom: 25px;
-}
-
-.section-header h2 {
-  color: var(--text);
-  font-size: 2rem;
-  margin-bottom: 8px;
-}
-
-.section-header p {
-  color: var(--text-light);
-  font-size: 1.1rem;
-}
-
 .lessons-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -1007,10 +992,6 @@ button {
     font-size: 2rem;
   }
   
-  .section-header h2 {
-    font-size: 1.6rem;
-  }
-  
   .score-circle {
     width: 120px;
     height: 120px;
@@ -1309,12 +1290,6 @@ button {
   padding: 20px;
 }
 
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
 .classes-table {
   width: 100%;
   border-collapse: collapse;
@@ -1352,6 +1327,59 @@ button {
   font-size: 16px;
   color: #999;
 }
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap; /* allows wrapping on small screens */
+  gap: 15px;
+  margin-bottom: 25px;
+}
 
+.section-text {
+  flex: 1;
+  min-width: 250px; /* ensures text block doesn’t shrink too much */
+}
+
+.section-header h2 {
+  color: var(--text);
+  font-size: 2rem;
+  margin-bottom: 8px;
+}
+
+.section-header p {
+  color: var(--text-light);
+  font-size: 1.1rem;
+}
+
+/* Make text + button stack on small screens */
+@media (max-width: 768px) {
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .section-header h2 {
+    font-size: 1.6rem;
+  }
+
+  .section-header p {
+    font-size: 1rem;
+  }
+
+  .add-btn {
+    width: 100%; /* full-width button on mobile */
+  }
+}
+
+@media (max-width: 480px) {
+  .section-header h2 {
+    font-size: 1.4rem;
+  }
+
+  .section-header p {
+    font-size: 0.95rem;
+  }
+}
 
 

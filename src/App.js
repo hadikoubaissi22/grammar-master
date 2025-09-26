@@ -961,14 +961,20 @@ if (isRegister) {
         {view === "lessons" ? (
         <div className="lessons-container">
           <div className="section-header">
-            <h2>Choose a Lesson</h2>
-            <p>Select a lesson to start practicing your grammar skills</p>
-          </div>
-            {view === "lessons" ? (
-              <button className="btn-primary add-btn" style={{marginBottom:'25px'}} onClick={() => setShowAddLessonForm(true)}>
+            <div className="section-text">
+              <h2>Choose a Lesson</h2>
+              <p>Select a lesson to start practicing your grammar skills</p>
+            </div>
+
+            {view === "lessons" && (
+              <button
+                className="btn-primary add-btn"
+                onClick={() => setShowAddLessonForm(true)}
+              >
                 <FaPlus /> Add Lesson
               </button>
-            ) : null}
+            )}
+          </div>
           <div className="lessons-grid">
             {loadingLessons ? (
               // Skeleton loaders
