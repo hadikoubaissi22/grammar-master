@@ -1334,6 +1334,7 @@ button {
   flex-wrap: wrap; /* allows wrapping on small screens */
   gap: 15px;
   margin-bottom: 25px;
+  text-align: left;
 }
 
 .section-text {

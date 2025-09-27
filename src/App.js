@@ -1236,7 +1236,9 @@ if (isRegister) {
         ) : (
           <div className="classes-container">
             <div className="section-header">
-              <h2>All Classes</h2>
+              <div className="section-text">
+                <h2>All Classes</h2>
+              </div>
               <button className="btn-primary" onClick={() => alert('Add Class functionality coming soon!')}>
                 <FaPlus /> Add Class
               </button>
