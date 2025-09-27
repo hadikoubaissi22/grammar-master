@@ -448,6 +448,24 @@ button {
   box-shadow: 0 0 0 3px rgba(126, 110, 249, 0.2);
 }
 
+.form-group.floating textarea {
+  width: 100%;
+  padding: 16px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 16px;
+  background: var(--background);
+  transition: var(--transition);
+  resize: vertical; /* allow resizing vertically only */
+  min-height: 100px; /* optional: give it a decent starting height */
+}
+
+.form-group.floating textarea:focus {
+  border-color: var(--primary);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(126, 110, 249, 0.2);
+}
+
 .form-group.floating label {
   position: absolute;
   top: 16px;
@@ -459,6 +477,16 @@ button {
 
 .form-group.floating input:focus ~ label,
 .form-group.floating input:not(:placeholder-shown) ~ label {
+  top: -10px;
+  left: 12px;
+  font-size: 0.8rem;
+  background: var(--card);
+  padding: 0 8px;
+  color: var(--primary);
+}
+
+.form-group.floating textarea:focus ~ label,
+.form-group.floating textarea:not(:placeholder-shown) ~ label {
   top: -10px;
   left: 12px;
   font-size: 0.8rem;
@@ -1383,4 +1411,23 @@ button {
   }
 }
 
+.search-bar {
+  margin-bottom: 15px;
+}
+
+.search-input {
+  width: 100%;
+  max-width: 300px;
+  padding: 10px 14px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 15px;
+  transition: var(--transition);
+}
+
+.search-input:focus {
+  border-color: var(--primary);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(126, 110, 249, 0.2);
+}
 

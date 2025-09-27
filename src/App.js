@@ -52,6 +52,7 @@ function App() {
   const [loginError, setLoginError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showAddLessonForm, setShowAddLessonForm] = useState(false);
+  const [showAddClassForm, setShowAddClassForm] = useState(false);
   const [newLesson, setNewLesson] = useState({
     title: "",
     image: "",
@@ -59,6 +60,12 @@ function App() {
       { id: uuidv4(), text: "", options: ["", "", "", ""], correctAnswer: 0, image: "" }
     ]
   });
+  const [newClass, setNewClass] = useState({
+    name: "",
+    description: "",
+    level: ""
+  });
+  const [savingClass, setSavingClass] = useState(false);
 
   const [lessons, setLessons] = useState([]);
   const [loadingLessons, setLoadingLessons] = useState(true);
@@ -79,6 +86,7 @@ function App() {
   const [view, setView] = useState("lessons"); 
   const [classes, setClasses] = useState([]);
   const [loadingClasses, setLoadingClasses] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
 const handleRegister = async (e) => {
   e.preventDefault();
@@ -144,6 +152,37 @@ const handleRegister = async (e) => {
     setLoading(false);
   }
 };
+
+const AppFooter = () => (
+  <footer className="app-footer">
+    <p>© {new Date().getFullYear()} Hadi Koubaissi</p>
+    <div className="footer-links">
+      <div className="footer-item">
+        <a href="https://linkedin.com/in/hadi-koubaissi" target="_blank" rel="noopener noreferrer">
+          <FaLinkedin />
+        </a>
+        <span>Hadi Koubaissi</span>
+      </div>
+      <div className="footer-item">
+        <a href="https://www.instagram.com/hadi_koubaissi/" target="_blank" rel="noopener noreferrer">
+          <FaInstagram />
+        </a>
+        <span>hadi_koubaissi</span>
+      </div>
+      <div className="footer-item">
+        <a href="mailto:koubaissihadi2@gmail.com">
+          <FaEnvelope />
+        </a>
+        <span>koubaissihadi2@gmail.com</span>
+      </div>
+    </div>
+  </footer>
+);
+const filteredClasses = classes.filter((cls) =>
+  cls.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  cls.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  cls.level.toLowerCase().includes(searchTerm.toLowerCase())
+);
 
 
   const handleVerifyOtp = async (e) => {
@@ -618,6 +657,63 @@ const handleRegister = async (e) => {
       } 
   }
   };
+
+  const saveClass = async () => {
+    if (!newClass.name.trim() || !newClass.level.trim()) {
+      MySwal.fire({
+        icon: "error",
+        title: "Validation Error",
+        text: "Class name and level are required",
+        confirmButtonColor: "#7E6EF9",
+      });
+      return;
+    }
+
+    setSavingClass(true);
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch("https://grammar-backend-api.vercel.app/classes", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newClass),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        MySwal.fire({
+          icon: "success",
+          title: "Class Saved!",
+          text: "Your class has been successfully created.",
+          confirmButtonColor: "#7E6EF9",
+        });
+        setShowAddClassForm(false);
+        setNewClass({ name: "", description: "", level: "" });
+        fetchClasses(); // refresh list
+      } else {
+        MySwal.fire({
+          icon: "error",
+          title: "Save Failed",
+          text: data.message || "Unable to save class",
+          confirmButtonColor: "#7E6EF9",
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      MySwal.fire({
+        icon: "error",
+        title: "Server Error",
+        text: "Please try again later",
+        confirmButtonColor: "#7E6EF9",
+      });
+    } finally {
+      setSavingClass(false);
+    }
+  };
+
 
   const confirmLogout = () => {
     MySwal.fire({
@@ -1239,7 +1335,7 @@ if (isRegister) {
               <div className="section-text">
                 <h2>All Classes</h2>
               </div>
-              <button className="btn-primary add-btn" onClick={() => alert('Add Class functionality coming soon!')}>
+              <button className="btn-primary add-btn" onClick={() => setShowAddClassForm(true)}>
                 <FaPlus /> Add Class
               </button>
             </div>
@@ -1252,42 +1348,87 @@ if (isRegister) {
                     <p>Click on <strong>Add Class</strong> to create your first class!</p>
                   </div>
               ) : (
-                <DataTable
-                  columns={columns}
-                  data={classes}
-                  pagination
-                  highlightOnHover
-                  striped
-                  responsive
-                  defaultSortFieldId={1}
-                />
+                <><div className="search-bar">
+                      <input
+                        type="text"
+                        placeholder="🔍 Search classes..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="search-input" />
+                    </div><DataTable
+                        columns={columns}
+                        data={filteredClasses}
+                        pagination
+                        highlightOnHover
+                        striped
+                        responsive
+                        defaultSortFieldId={1} /></>
               )}
           </div>
+          
         )}
-        <footer className="app-footer">
-          <p>© {new Date().getFullYear()} Hadi Koubaissi</p>
-          <div className="footer-links">
-            <div className="footer-item">
-              <a href="https://linkedin.com/in/hadi-koubaissi" target="_blank" rel="noopener noreferrer">
-                <FaLinkedin />
-              </a>
-              <span>Hadi Koubaissi</span>
-            </div>
-            <div className="footer-item">
-              <a href="https://www.instagram.com/hadi_koubaissi/" target="_blank" rel="noopener noreferrer">
-                <FaInstagram />
-              </a>
-              <span>hadi_koubaissi</span>
-            </div>
-            <div className="footer-item">
-              <a href="mailto:koubaissihadi2@gmail.com">
-                <FaEnvelope />
-              </a>
-              <span>koubaissihadi2@gmail.com</span>
-            </div>
-          </div>
-        </footer>
+        {showAddClassForm && (
+            <div className="modal-overlay">
+              <div className="modal modern-modal">
+                <h2 className="modal-title"><FaPlus /> Add New Class</h2>
 
+                <div className="form-group floating">
+                  <input
+                    type="text"
+                    value={newClass.name}
+                    onChange={(e) => setNewClass({ ...newClass, name: e.target.value })}
+                    required
+                  />
+                  <label>Class Name</label>
+                </div>
+
+                <div className="form-group floating">
+                  <textarea
+                    value={newClass.description}
+                    onChange={(e) => setNewClass({ ...newClass, description: e.target.value })}
+                  />
+                  <label>Description</label>
+                </div>
+
+                <div className="form-group floating">
+                  <select
+                    value={newClass.level}
+                    onChange={(e) => setNewClass({ ...newClass, level: e.target.value })}
+                    className="modern-select"
+                    required
+                  >
+                    <option value="">Select Level</option>
+                    <option value="Beginner">Beginner</option>
+                    <option value="Intermediate">Intermediate</option>
+                    <option value="Hard">Hard</option>
+                  </select>
+
+                  {/* <label>Level</label> */}
+                </div>
+
+                <div className="modal-actions">
+                  <button
+                    className="btn-primary"
+                    onClick={saveClass}
+                    disabled={savingClass}
+                  >
+                    {savingClass ? <div className="spinner-small"></div> : <><FaCheck /> Save Class</>}
+                  </button>
+                  <button
+                    className="btn-secondary"
+                    onClick={() => {
+                      setShowAddClassForm(false);
+                      setNewClass({ name: "", description: "", level: "" });
+                    }}
+                    disabled={savingClass}
+                  >
+                    <FaTimes /> Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        <AppFooter />
       </div>
     );
   }
@@ -1365,8 +1506,10 @@ if (isRegister) {
             <RiBookOpenFill /> Try Another Lesson
           </button>
         </div>
+         <AppFooter />  
       </div>
     );
+    
   }
 
   const question = currentLesson.questions[currentQuestion];
@@ -1434,6 +1577,7 @@ if (isRegister) {
             'Finish Quiz' : 'Next Question'}
         </button>
       </div>
+       <AppFooter />  
     </div>
   );
 }
