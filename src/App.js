@@ -89,6 +89,15 @@ function App() {
   const [searchTerm, setSearchTerm] = useState("");
   const [editingClassId, setEditingClassId] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [students, setStudents] = useState([]);
+  const [loadingStudents, setLoadingStudents] = useState(false);
+  const [showAddStudentForm, setShowAddStudentForm] = useState(false);
+  const [savingStudent, setSavingStudent] = useState(false);
+  const [newStudent, setNewStudent] = useState({ name: "", email: "", classId: "" });
+  const [studentSearchTerm, setStudentSearchTerm] = useState("");
+  const [editingStudentId, setEditingStudentId] = useState(null);
+
+
 
 
 const handleRegister = async (e) => {
@@ -156,36 +165,40 @@ const handleRegister = async (e) => {
   }
 };
 
-const AppFooter = () => (
-  <footer className="app-footer">
-    <p>© {new Date().getFullYear()} Hadi Koubaissi</p>
-    <div className="footer-links">
-      <div className="footer-item">
-        <a href="https://linkedin.com/in/hadi-koubaissi" target="_blank" rel="noopener noreferrer">
-          <FaLinkedin />
-        </a>
-        <span>Hadi Koubaissi</span>
+  const AppFooter = () => (
+    <footer className="app-footer">
+      <p>© {new Date().getFullYear()} Hadi Koubaissi</p>
+      <div className="footer-links">
+        <div className="footer-item">
+          <a href="https://linkedin.com/in/hadi-koubaissi" target="_blank" rel="noopener noreferrer">
+            <FaLinkedin />
+          </a>
+          <span>Hadi Koubaissi</span>
+        </div>
+        <div className="footer-item">
+          <a href="https://www.instagram.com/hadi_koubaissi/" target="_blank" rel="noopener noreferrer">
+            <FaInstagram />
+          </a>
+          <span>hadi_koubaissi</span>
+        </div>
+        <div className="footer-item">
+          <a href="mailto:koubaissihadi2@gmail.com">
+            <FaEnvelope />
+          </a>
+          <span>koubaissihadi2@gmail.com</span>
+        </div>
       </div>
-      <div className="footer-item">
-        <a href="https://www.instagram.com/hadi_koubaissi/" target="_blank" rel="noopener noreferrer">
-          <FaInstagram />
-        </a>
-        <span>hadi_koubaissi</span>
-      </div>
-      <div className="footer-item">
-        <a href="mailto:koubaissihadi2@gmail.com">
-          <FaEnvelope />
-        </a>
-        <span>koubaissihadi2@gmail.com</span>
-      </div>
-    </div>
-  </footer>
-);
-const filteredClasses = classes.filter((cls) =>
-  cls.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  cls.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  cls.level.toLowerCase().includes(searchTerm.toLowerCase())
-);
+    </footer>
+  );
+  const filteredClasses = classes.filter((cls) =>
+    cls.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    cls.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    cls.level.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  const filteredStudents = students.filter(student =>
+    student.name.toLowerCase().includes(studentSearchTerm.toLowerCase()) ||
+    student.email.toLowerCase().includes(studentSearchTerm.toLowerCase())
+  );
 
 
   const handleVerifyOtp = async (e) => {
@@ -410,6 +423,84 @@ const filteredClasses = classes.filter((cls) =>
       }
     });
   };
+const confirmDeleteStudent = (studentId, studentName) => {
+  MySwal.fire({
+    title: 'Delete Student?',
+    html: `Are you sure you want to delete <strong>"${studentName}"</strong>?`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#FF5C5C',
+    cancelButtonColor: '#7E6EF9',
+    confirmButtonText: 'Yes, Delete',
+    cancelButtonText: 'Cancel',
+    reverseButtons: true,
+  }).then((result) => {
+    if (result.isConfirmed) {
+      deleteStudent(studentId);
+    }
+  });
+};
+const deleteStudent = async (studentId) => {
+  try {
+    const token = localStorage.getItem("token");
+
+    const response = await fetch(
+      `https://grammar-backend-api.vercel.app/students/${studentId}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+      }
+    );
+
+    const data = await response.json();
+
+    if (response.ok) {
+      MySwal.fire({
+        icon: "success",
+        title: "Student Deleted!",
+        text: "The student has been successfully deleted.",
+        confirmButtonColor: "#7E6EF9",
+      });
+      setStudents(students.filter(std => std.id !== studentId));
+    } else {
+      MySwal.fire({
+        icon: "error",
+        title: "Delete Failed",
+        text: data.message || "Unable to delete student",
+        confirmButtonColor: "#7E6EF9",
+      });
+    }
+  } catch (err) {
+    console.error(err);
+    MySwal.fire({
+      icon: "error",
+      title: "Server Error",
+      text: "Please try again later",
+      confirmButtonColor: "#7E6EF9",
+    });
+  }
+};
+const fetchStudents = async () => {
+  setLoadingStudents(true);
+  try {
+    const token = localStorage.getItem("token");
+    const response = await fetch("https://grammar-backend-api.vercel.app/students", {
+      headers: {
+        "Authorization": `Bearer ${token}`,
+      },
+    });
+    const data = await response.json();
+    if (response.ok) {
+      setStudents(data.students || []);
+    }
+  } catch (err) {
+    console.error("Error fetching students:", err);
+  } finally {
+    setLoadingStudents(false);
+  }
+};
 
   const deleteClass = async (classId) => {
     try {
@@ -504,8 +595,47 @@ const filteredClasses = classes.filter((cls) =>
       button: true,
     }
   ];
-
-
+  const studentColumns = [
+    { name: "ID", selector: (row) => row.id, sortable: true, width: "70px" },
+    { name: "Name", selector: (row) => row.name, sortable: true },
+    { name: "Email", selector: (row) => row.email },
+    { name: "Class ID", selector: (row) => row.class_id, sortable: true },
+    { 
+      name: "Created At", 
+      selector: (row) => new Date(row.created_at).toLocaleDateString(), 
+      sortable: true 
+    },
+    {
+      name: "Actions",
+      cell: (row) => (
+        <div className="actions-cell">
+          <button
+            className="action-btn edit-btn"
+            onClick={() => {
+              setShowAddStudentForm(true);
+              setNewStudent({
+                name: row.name,
+                email: row.email,
+                classId: row.class_id,
+              });
+              setEditingStudentId(row.id);
+            }}
+          >
+            <FaEdit />
+          </button>
+          <button
+            className="action-btn delete-btn"
+            onClick={() => confirmDeleteStudent(row.id, row.name)}
+          >
+            <FaTrash />
+          </button>
+        </div>
+      ),
+      ignoreRowClick: true,
+      allowOverflow: true,
+      button: true,
+    }
+  ];
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -827,6 +957,80 @@ const saveClass = async () => {
     });
   } finally {
     setSavingClass(false);
+  }
+};
+const saveStudent = async () => {
+  if (!newStudent.name.trim() || !newStudent.email.trim()) {
+    MySwal.fire({
+      icon: "error",
+      title: "Validation Error",
+      text: "Student name and email are required",
+      confirmButtonColor: "#7E6EF9",
+    });
+    return;
+  }
+
+  setSavingStudent(true);
+  try {
+    const token = localStorage.getItem("token");
+
+    let response;
+    if (editingStudentId) {
+      // ✅ Update existing student
+      response = await fetch(
+        `https://grammar-backend-api.vercel.app/students/${editingStudentId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(newStudent),
+        }
+      );
+    } else {
+      // ✅ Create new student
+      response = await fetch("https://grammar-backend-api.vercel.app/students", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newStudent),
+      });
+    }
+
+    const data = await response.json();
+
+    if (response.ok) {
+      MySwal.fire({
+        icon: "success",
+        title: editingStudentId ? "Student Updated!" : "Student Saved!",
+        text: "Student information has been saved.",
+        confirmButtonColor: "#7E6EF9",
+      });
+      setShowAddStudentForm(false);
+      setNewStudent({ name: "", email: "", classId: "" });
+      setEditingStudentId(null);
+      fetchStudents();
+    } else {
+      MySwal.fire({
+        icon: "error",
+        title: "Save Failed",
+        text: data.message || "Unable to save student",
+        confirmButtonColor: "#7E6EF9",
+      });
+    }
+  } catch (err) {
+    console.error(err);
+    MySwal.fire({
+      icon: "error",
+      title: "Server Error",
+      text: "Please try again later",
+      confirmButtonColor: "#7E6EF9",
+    });
+  } finally {
+    setSavingStudent(false);
   }
 };
 
@@ -1197,14 +1401,14 @@ if (isRegister) {
               <p>Select a lesson to start practicing your grammar skills</p>
             </div>
 
-            {view === "lessons" && (
+            
               <button
                 className="btn-primary add-btn"
                 onClick={() => setShowAddLessonForm(true)}
               >
                 <FaPlus /> Add Lesson
               </button>
-            )}
+        
           </div>
           <div className="lessons-grid">
             {loadingLessons ? (
@@ -1464,11 +1668,12 @@ if (isRegister) {
           )}
 
         </div>
-        ) : (
+        ) : view === "classes" ? (
           <div className="classes-container">
             <div className="section-header">
               <div className="section-text">
                 <h2>All Classes</h2>
+                <p>Manage your classes here</p>
               </div>
               <button className="btn-primary add-btn" onClick={() => setShowAddClassForm(true)}>
                 <FaPlus /> Add Class
@@ -1501,7 +1706,117 @@ if (isRegister) {
               )}
           </div>
           
-        )}
+        ) : view === "students" ? (
+          <div className="students-container">
+            <div className="section-header">
+              <div className="section-text">
+                <h2>All Students</h2>
+                <p>Manage your registered students here</p>
+              </div>
+              <button
+                className="btn-primary add-btn"
+                onClick={() => setShowAddStudentForm(true)}
+              >
+                <FaPlus /> Add Student
+              </button>
+            </div>
+
+            {loadingStudents ? (
+              <p>Loading students...</p>
+            ) : students.length === 0 ? (
+              <div className="no-classes">
+                <FaUserGraduate className="no-classes-icon" />
+                <h3>No students available</h3>
+                <p>Click on <strong>Add Student</strong> to create your first student!</p>
+              </div>
+            ) : (
+              <>
+                <div className="search-bar">
+                  <input
+                    type="text"
+                    placeholder="🔍 Search students..."
+                    value={studentSearchTerm}
+                    onChange={(e) => setStudentSearchTerm(e.target.value)}
+                    className="search-input"
+                  />
+                </div>
+                <DataTable
+                  columns={studentColumns}
+                  data={filteredStudents}
+                  pagination
+                  highlightOnHover
+                  striped
+                  responsive
+                  defaultSortFieldId={1}
+                />
+              </>
+            )}
+
+            {/* ✅ Add Student Modal */}
+            {showAddStudentForm && (
+              <div className="modal-overlay">
+                <div className="modal modern-modal">
+                  <h2 className="modal-title">
+                    <FaPlus /> Add New Student
+                  </h2>
+
+                  <div className="form-group floating">
+                    <input
+                      type="text"
+                      value={newStudent.name}
+                      onChange={(e) => setNewStudent({ ...newStudent, name: e.target.value })}
+                    />
+                    <label>Student Name</label>
+                  </div>
+
+                  <div className="form-group floating">
+                    <input
+                      type="email"
+                      value={newStudent.email}
+                      onChange={(e) => setNewStudent({ ...newStudent, email: e.target.value })}
+                    />
+                    <label>Email</label>
+                  </div>
+
+                  <div className="form-group floating">
+                    <input
+                      type="text"
+                      value={newStudent.classId}
+                      onChange={(e) => setNewStudent({ ...newStudent, classId: e.target.value })}
+                    />
+                    <label>Class ID</label>
+                  </div>
+
+                  <div className="modal-actions">
+                    <button
+                      className="btn-primary"
+                      onClick={saveStudent}
+                      disabled={savingStudent}
+                    >
+                      {savingStudent ? (
+                        <div className="spinner-small"></div>
+                      ) : (
+                        <>
+                          <FaCheck /> Save Student
+                        </>
+                      )}
+                    </button>
+                    <button
+                      className="btn-secondary"
+                      onClick={() => {
+                        setShowAddStudentForm(false);
+                        setNewStudent({ name: "", email: "", classId: "" });
+                      }}
+                      disabled={savingStudent}
+                    >
+                      <FaTimes /> Cancel
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        ) : null}
         {showAddClassForm && (
             <div className="modal-overlay">
               <div className="modal modern-modal">
