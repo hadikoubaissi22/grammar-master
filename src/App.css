@@ -967,8 +967,8 @@ button {
   }
   
   .app-header {
-    flex-direction: column;
-    gap: 16px;
+    /* flex-direction: column; */
+    /* gap: 16px; */
     text-align: center;
   }
   
