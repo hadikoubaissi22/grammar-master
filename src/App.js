@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
 import { FaPlus, FaEye, FaEyeSlash, FaSignOutAlt, FaArrowLeft, FaCheck, FaTimes, FaTrash, FaEdit, FaBook, FaUserGraduate,FaLinkedin, FaInstagram, 
-  FaEnvelope,FaChalkboardTeacher, FaGraduationCap,FaUniversity,FaFolder } from "react-icons/fa";
+  FaEnvelope,FaChalkboardTeacher, FaGraduationCap,FaUniversity,FaFolder,FaBars } from "react-icons/fa";
 import { RiBookOpenFill, RiQuestionnaireFill } from "react-icons/ri";
 import { BsStars, BsLightningChargeFill } from "react-icons/bs";
 import imageCompression from 'browser-image-compression';
@@ -1148,12 +1148,13 @@ if (isRegister) {
           </div>
           <div className="header-buttons">
             {/* Hamburger Icon - only visible on small screens */}
-            <button 
-              className="menu-toggle" 
-              onClick={() => setMenuOpen(!menuOpen)}
-            >
-              ☰
-            </button>
+
+          <button 
+            className="menu-toggle" 
+            onClick={() => setMenuOpen(!menuOpen)}
+          >
+            {menuOpen ? <FaTimes /> : <FaBars />}
+          </button>
 
             <div className={`menu-items ${menuOpen ? "open" : ""}`}>
               {userType === "Admin" && (
