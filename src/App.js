@@ -1010,7 +1010,7 @@ if (isRegister) {
           <div className="login-header">
             <div className="logo">
               <RiBookOpenFill className="logo-icon" />
-              <h1 style={{fontSize:'25px'}}>Grammar Master</h1>
+              <h1>Grammar Master</h1>
             </div>
             <p>Fun grammar lessons for 5th graders</p>
           </div>
@@ -1144,7 +1144,7 @@ if (isRegister) {
         <header className="app-header">
           <div className="logo">
             <RiBookOpenFill className="logo-icon" />
-            <h1>Grammar Master</h1>
+            <h1 style={{fontSize:'25px'}}>Grammar Master</h1>
           </div>
           <div className="header-buttons">
             {/* Hamburger Icon - only visible on small screens */}
