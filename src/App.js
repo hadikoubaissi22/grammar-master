@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
 import { FaPlus, FaEye, FaEyeSlash, FaSignOutAlt, FaArrowLeft, FaCheck, FaTimes, FaTrash, FaEdit, FaBook, FaUserGraduate,FaLinkedin, FaInstagram, 
-  FaEnvelope,FaChalkboardTeacher } from "react-icons/fa";
+  FaEnvelope,FaChalkboardTeacher, FaGraduationCap,FaUniversity,FaFolder } from "react-icons/fa";
 import { RiBookOpenFill, RiQuestionnaireFill } from "react-icons/ri";
 import { BsStars, BsLightningChargeFill } from "react-icons/bs";
 import imageCompression from 'browser-image-compression';
@@ -1147,21 +1147,24 @@ if (isRegister) {
           <div className="header-buttons">
               {userType === "Admin" && (
                 <>
-                  {view === "lessons" ? (
-                    <button 
-                      className="btn-secondary classes-btn" 
-                      onClick={() => setView("classes")}
-                    >
-                      <FaUserGraduate /> Classes
-                    </button>
-                  ) : (
                     <button 
                       className="btn-secondary lessons-btn" 
                       onClick={() => setView("lessons")}
                     >
                       <FaBook /> Lessons
                     </button>
-                  )}
+                    <button 
+                      className="btn-secondary classes-btn" 
+                      onClick={() => setView("classes")}
+                    >
+                      <FaFolder /> Classes
+                    </button>
+                    <button 
+                      className="btn-secondary classes-btn" 
+                      onClick={() => setView("classes")}
+                    >
+                      <FaUserGraduate /> Students
+                    </button>
                 </>
               )}
             <button className="btn-secondary logout-btn" onClick={confirmLogout}>
