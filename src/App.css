@@ -221,10 +221,6 @@ body {
   border-bottom: 2px solid var(--border);
 }
 
-.header-buttons {
-  display: flex;
-  gap: 12px;
-}
 
 /* Buttons */
 button {
@@ -976,10 +972,6 @@ button {
     text-align: center;
   }
   
-  .header-buttons {
-    width: 100%;
-    justify-content: center;
-  }
   
   .lessons-grid {
     grid-template-columns: 1fr;
@@ -1459,6 +1451,35 @@ button {
 
 .delete-btn:hover {
   color: #c62828;
+}
+.header-buttons {
+  display: flex;
+  flex-wrap: wrap;        /* allow wrapping on small screens */
+  gap: 12px;
+  justify-content: flex-end; /* align right by default (desktop) */
+  align-items: center;
+  width: 100%;
+}
+
+/* Medium screens (tablets) */
+@media (max-width: 992px) {
+  .header-buttons {
+    justify-content: center; /* center buttons on medium screens */
+    gap: 10px;
+  }
+}
+
+/* Small screens (phones) */
+@media (max-width: 576px) {
+  .header-buttons {
+    flex-direction: column;   /* stack vertically */
+    gap: 8px;
+  }
+
+  .header-buttons .btn-secondary {
+    width: 100%;             /* make buttons full width on mobile */
+    max-width: 250px;        /* optional: limit width */
+  }
 }
 
 
