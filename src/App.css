@@ -1431,3 +1431,34 @@ button {
   box-shadow: 0 0 0 3px rgba(126, 110, 249, 0.2);
 }
 
+.actions-cell {
+  display: flex;
+  /* gap: 8px; */
+}
+
+.action-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 18px;
+  transition: 0.2s;
+  padding: 6px 12px;
+}
+
+.edit-btn {
+  color: #4CAF50;
+}
+
+.edit-btn:hover {
+  color: #2e7d32;
+}
+
+.delete-btn {
+  color: #f44336;
+}
+
+.delete-btn:hover {
+  color: #c62828;
+}
+
+

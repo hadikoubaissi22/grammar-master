@@ -87,6 +87,7 @@ function App() {
   const [classes, setClasses] = useState([]);
   const [loadingClasses, setLoadingClasses] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [editingClassId, setEditingClassId] = useState(null);
 
 const handleRegister = async (e) => {
   e.preventDefault();
@@ -390,6 +391,64 @@ const filteredClasses = classes.filter((cls) =>
     }
   };
 
+  const confirmDeleteClass = (classId, className) => {
+    MySwal.fire({
+      title: 'Delete Class?',
+      html: `Are you sure you want to delete <strong>"${className}"</strong>?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#FF5C5C',
+      cancelButtonColor: '#7E6EF9',
+      confirmButtonText: 'Yes, Delete',
+      cancelButtonText: 'Cancel',
+      reverseButtons: true,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        deleteClass(classId);
+      }
+    });
+  };
+
+  const deleteClass = async (classId) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const response = await fetch(`https://grammar-backend-api.vercel.app/classes/${classId}`, {
+        method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        MySwal.fire({
+          icon: "success",
+          title: "Class Deleted!",
+          text: "The class has been successfully deleted.",
+          confirmButtonColor: "#7E6EF9",
+        });
+        setClasses(classes.filter(cls => cls.id !== classId));
+      } else {
+        MySwal.fire({
+          icon: "error",
+          title: "Delete Failed",
+          text: data.message || "Unable to delete class",
+          confirmButtonColor: "#7E6EF9",
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      MySwal.fire({
+        icon: "error",
+        title: "Server Error",
+        text: "Please try again later",
+        confirmButtonColor: "#7E6EF9",
+      });
+    }
+  };
+
   useEffect(() => {
     // Only attempt to fetch lessons if the user is considered logged in
     if (isLoggedIn) {
@@ -409,6 +468,39 @@ const filteredClasses = classes.filter((cls) =>
       selector: (row) => new Date(row.created_at).toLocaleDateString(), 
       sortable: true 
     },
+    {
+      name: "Actions",
+      cell: (row) => (
+        <div className="actions-cell">
+          {/* Edit button */}
+          <button
+            className="action-btn edit-btn"
+            onClick={() => {
+              setShowAddClassForm(true);
+              setNewClass({
+                name: row.name,
+                description: row.description,
+                level: row.level,
+              });
+              setEditingClassId(row.id); // you'll need a state for this
+            }}
+          >
+            <FaEdit />
+          </button>
+
+          {/* Delete button */}
+          <button
+            className="action-btn delete-btn"
+            onClick={() => confirmDeleteClass(row.id, row.name)}
+          >
+            <FaTrash />
+          </button>
+        </div>
+      ),
+      ignoreRowClick: true,
+      allowOverflow: true,
+      button: true,
+    }
   ];
 
 
@@ -658,61 +750,84 @@ const filteredClasses = classes.filter((cls) =>
   }
   };
 
-  const saveClass = async () => {
-    if (!newClass.name.trim() || !newClass.level.trim()) {
-      MySwal.fire({
-        icon: "error",
-        title: "Validation Error",
-        text: "Class name and level are required",
-        confirmButtonColor: "#7E6EF9",
-      });
-      return;
+const saveClass = async () => {
+  if (!newClass.name.trim() || !newClass.level.trim()) {
+    MySwal.fire({
+      icon: "error",
+      title: "Validation Error",
+      text: "Class name and level are required",
+      confirmButtonColor: "#7E6EF9",
+    });
+    return;
+  }
+
+  setSavingClass(true);
+  try {
+    const token = localStorage.getItem("token");
+
+    let response;
+    if (editingClassId) {
+      // ✅ Update existing class
+      response = await fetch(
+        `https://grammar-backend-api.vercel.app/classes/${editingClassId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(newClass),
+        }
+      );
+    } else {
+      // ✅ Create new class
+      response = await fetch(
+        "https://grammar-backend-api.vercel.app/classes",
+        {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(newClass),
+        }
+      );
     }
 
-    setSavingClass(true);
-    try {
-      const token = localStorage.getItem("token");
-      const response = await fetch("https://grammar-backend-api.vercel.app/classes", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(newClass),
-      });
+    const data = await response.json();
 
-      const data = await response.json();
-
-      if (response.ok) {
-        MySwal.fire({
-          icon: "success",
-          title: "Class Saved!",
-          text: "Your class has been successfully created.",
-          confirmButtonColor: "#7E6EF9",
-        });
-        setShowAddClassForm(false);
-        setNewClass({ name: "", description: "", level: "" });
-        fetchClasses(); // refresh list
-      } else {
-        MySwal.fire({
-          icon: "error",
-          title: "Save Failed",
-          text: data.message || "Unable to save class",
-          confirmButtonColor: "#7E6EF9",
-        });
-      }
-    } catch (err) {
-      console.error(err);
+    if (response.ok) {
       MySwal.fire({
-        icon: "error",
-        title: "Server Error",
-        text: "Please try again later",
+        icon: "success",
+        title: editingClassId ? "Class Updated!" : "Class Saved!",
+        text: "Your class has been successfully saved.",
         confirmButtonColor: "#7E6EF9",
       });
-    } finally {
-      setSavingClass(false);
+      setShowAddClassForm(false);
+      setNewClass({ name: "", description: "", level: "" });
+      setEditingClassId(null); // ✅ reset after save
+      fetchClasses();
+    } else {
+      MySwal.fire({
+        icon: "error",
+        title: "Save Failed",
+        text: data.message || "Unable to save class",
+        confirmButtonColor: "#7E6EF9",
+      });
     }
-  };
+  } catch (err) {
+    console.error(err);
+    MySwal.fire({
+      icon: "error",
+      title: "Server Error",
+      text: "Please try again later",
+      confirmButtonColor: "#7E6EF9",
+    });
+  } finally {
+    setSavingClass(false);
+  }
+};
+
 
 
   const confirmLogout = () => {
@@ -1419,6 +1534,7 @@ if (isRegister) {
                     onClick={() => {
                       setShowAddClassForm(false);
                       setNewClass({ name: "", description: "", level: "" });
+                      setEditingClassId(null);
                     }}
                     disabled={savingClass}
                   >
