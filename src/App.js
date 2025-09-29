@@ -88,6 +88,8 @@ function App() {
   const [loadingClasses, setLoadingClasses] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [editingClassId, setEditingClassId] = useState(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+
 
 const handleRegister = async (e) => {
   e.preventDefault();
@@ -1145,32 +1147,43 @@ if (isRegister) {
             <h1>Grammar Master</h1>
           </div>
           <div className="header-buttons">
+            {/* Hamburger Icon - only visible on small screens */}
+            <button 
+              className="menu-toggle" 
+              onClick={() => setMenuOpen(!menuOpen)}
+            >
+              ☰
+            </button>
+
+            <div className={`menu-items ${menuOpen ? "open" : ""}`}>
               {userType === "Admin" && (
                 <>
-                    <button 
-                      className="btn-secondary lessons-btn" 
-                      onClick={() => setView("lessons")}
-                    >
-                      <FaBook /> Lessons
-                    </button>
-                    <button 
-                      className="btn-secondary classes-btn" 
-                      onClick={() => setView("classes")}
-                    >
-                      <FaFolder /> Classes
-                    </button>
-                    <button 
-                      className="btn-secondary classes-btn" 
-                      onClick={() => setView("classes")}
-                    >
-                      <FaUserGraduate /> Students
-                    </button>
+                  <button 
+                    className="btn-secondary lessons-btn" 
+                    onClick={() => setView("lessons")}
+                  >
+                    <FaBook /> Lessons
+                  </button>
+                  <button 
+                    className="btn-secondary classes-btn" 
+                    onClick={() => setView("classes")}
+                  >
+                    <FaFolder /> Classes
+                  </button>
+                  <button 
+                    className="btn-secondary students-btn" 
+                    onClick={() => setView("students")}
+                  >
+                    <FaUserGraduate /> Students
+                  </button>
                 </>
               )}
-            <button className="btn-secondary logout-btn" onClick={confirmLogout}>
-              <FaSignOutAlt /> Logout
-            </button>
+              <button className="btn-secondary logout-btn" onClick={confirmLogout}>
+                <FaSignOutAlt /> Logout
+              </button>
+            </div>
           </div>
+
         </header>
         {view === "lessons" ? (
         <div className="lessons-container">

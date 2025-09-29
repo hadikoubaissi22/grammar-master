@@ -1454,31 +1454,52 @@ button {
 }
 .header-buttons {
   display: flex;
-  flex-wrap: wrap;        /* allow wrapping on small screens */
-  gap: 12px;
-  justify-content: flex-end; /* align right by default (desktop) */
   align-items: center;
-  width: 100%;
+  gap: 12px;
+  position: relative;
 }
 
-/* Medium screens (tablets) */
-@media (max-width: 992px) {
-  .header-buttons {
-    justify-content: center; /* center buttons on medium screens */
-    gap: 10px;
-  }
+/* Hamburger button */
+.menu-toggle {
+  display: none;
+  font-size: 24px;
+  background: none;
+  border: none;
+  cursor: pointer;
 }
 
-/* Small screens (phones) */
-@media (max-width: 576px) {
-  .header-buttons {
-    flex-direction: column;   /* stack vertically */
-    gap: 8px;
+/* Menu items */
+.menu-items {
+  display: flex;
+  gap: 12px;
+}
+
+/* Small screens */
+@media (max-width: 768px) {
+  .menu-toggle {
+    display: block; /* show hamburger */
   }
 
-  .header-buttons .btn-secondary {
-    width: 100%;             /* make buttons full width on mobile */
-    max-width: 250px;        /* optional: limit width */
+  .menu-items {
+    display: none;  /* hidden by default */
+    flex-direction: column;
+    position: absolute;
+    top: 40px;
+    right: 0;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px;
+    z-index: 1000;
+  }
+
+  .menu-items.open {
+    display: flex; /* show when toggled */
+  }
+
+  .menu-items .btn-secondary {
+    width: 180px;
+    text-align: left;
   }
 }
 
