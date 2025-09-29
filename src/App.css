@@ -1502,5 +1502,14 @@ button {
     text-align: left;
   }
 }
+.btn-secondary.active {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+.btn-secondary.active:hover {
+  background: var(--primary-dark, #5a49d6); /* darker shade */
+}
 
 

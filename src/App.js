@@ -1160,23 +1160,26 @@ if (isRegister) {
               {userType === "Admin" && (
                 <>
                   <button 
-                    className="btn-secondary lessons-btn" 
+                    className={`btn-secondary lessons-btn ${view === "lessons" ? "active" : ""}`} 
                     onClick={() => setView("lessons")}
                   >
                     <FaBook /> Lessons
                   </button>
+
                   <button 
-                    className="btn-secondary classes-btn" 
+                    className={`btn-secondary classes-btn ${view === "classes" ? "active" : ""}`} 
                     onClick={() => setView("classes")}
                   >
                     <FaFolder /> Classes
                   </button>
+
                   <button 
-                    className="btn-secondary students-btn" 
+                    className={`btn-secondary students-btn ${view === "students" ? "active" : ""}`} 
                     onClick={() => setView("students")}
                   >
                     <FaUserGraduate /> Students
                   </button>
+
                 </>
               )}
               <button className="btn-secondary logout-btn" onClick={confirmLogout}>
