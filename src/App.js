@@ -93,7 +93,15 @@ function App() {
   const [loadingStudents, setLoadingStudents] = useState(false);
   const [showAddStudentForm, setShowAddStudentForm] = useState(false);
   const [savingStudent, setSavingStudent] = useState(false);
-  const [newStudent, setNewStudent] = useState({ name: "", email: "", classId: "" });
+  const [newStudent, setNewStudent] = useState({
+    firstname: "",
+    lastname: "",
+    fathername: "",
+    mothername: "",
+    phone: "",
+    classId: "",
+  });
+
   const [studentSearchTerm, setStudentSearchTerm] = useState("");
   const [editingStudentId, setEditingStudentId] = useState(null);
 
@@ -196,8 +204,8 @@ const handleRegister = async (e) => {
     cls.level.toLowerCase().includes(searchTerm.toLowerCase())
   );
   const filteredStudents = students.filter(student =>
-    student.name.toLowerCase().includes(studentSearchTerm.toLowerCase()) ||
-    student.email.toLowerCase().includes(studentSearchTerm.toLowerCase())
+    student.firstname.toLowerCase().includes(studentSearchTerm.toLowerCase()) ||
+    student.lastname.toLowerCase().includes(studentSearchTerm.toLowerCase())
   );
 
 
@@ -547,6 +555,7 @@ const fetchStudents = async () => {
     if (isLoggedIn) {
       fetchLessons();
       fetchClasses();
+      fetchStudents();
     }
   }, [isLoggedIn]); // Dependency on isLoggedIn ensures it runs when login status changes
 
@@ -597,9 +606,12 @@ const fetchStudents = async () => {
   ];
   const studentColumns = [
     { name: "ID", selector: (row) => row.id, sortable: true, width: "70px" },
-    { name: "Name", selector: (row) => row.name, sortable: true },
-    { name: "Email", selector: (row) => row.email },
-    { name: "Class ID", selector: (row) => row.class_id, sortable: true },
+    { name: "First Name", selector: (row) => row.firstname, sortable: true },
+    { name: "Last Name", selector: (row) => row.lastname, sortable: true },
+    { name: "Father Name", selector: (row) => row.fathername, sortable: true },
+    { name: "Mother Name", selector: (row) => row.mothername, sortable: true },
+    { name: "Phone Number", selector: (row) => row.phone, sortable: true },
+    { name: "Class", selector: (row) => row.class_name, sortable: true },
     { 
       name: "Created At", 
       selector: (row) => new Date(row.created_at).toLocaleDateString(), 
@@ -960,11 +972,11 @@ const saveClass = async () => {
   }
 };
 const saveStudent = async () => {
-  if (!newStudent.name.trim() || !newStudent.email.trim()) {
+  if (!newStudent.firstname.trim() || !newStudent.lastname.trim() || !newStudent.fathername.trim() || !newStudent.mothername.trim() || !newStudent.phone.trim()) {
     MySwal.fire({
       icon: "error",
       title: "Validation Error",
-      text: "Student name and email are required",
+      text: "All fields is required",
       confirmButtonColor: "#7E6EF9",
     });
     return;
@@ -1760,33 +1772,87 @@ if (isRegister) {
                     <FaPlus /> Add New Student
                   </h2>
 
+                  {/* First Name */}
                   <div className="form-group floating">
                     <input
                       type="text"
-                      value={newStudent.name}
-                      onChange={(e) => setNewStudent({ ...newStudent, name: e.target.value })}
+                      value={newStudent.firstname}
+                      onChange={(e) =>
+                        setNewStudent({ ...newStudent, firstname: e.target.value })
+                      }
                     />
-                    <label>Student Name</label>
+                    <label>First Name</label>
                   </div>
 
-                  <div className="form-group floating">
-                    <input
-                      type="email"
-                      value={newStudent.email}
-                      onChange={(e) => setNewStudent({ ...newStudent, email: e.target.value })}
-                    />
-                    <label>Email</label>
-                  </div>
-
+                  {/* Last Name */}
                   <div className="form-group floating">
                     <input
                       type="text"
+                      value={newStudent.lastname}
+                      onChange={(e) =>
+                        setNewStudent({ ...newStudent, lastname: e.target.value })
+                      }
+                    />
+                    <label>Last Name</label>
+                  </div>
+
+                  {/* Father Name */}
+                  <div className="form-group floating">
+                    <input
+                      type="text"
+                      value={newStudent.fathername}
+                      onChange={(e) =>
+                        setNewStudent({ ...newStudent, fathername: e.target.value })
+                      }
+                    />
+                    <label>Father Name</label>
+                  </div>
+
+                  {/* Mother Name */}
+                  <div className="form-group floating">
+                    <input
+                      type="text"
+                      value={newStudent.mothername}
+                      onChange={(e) =>
+                        setNewStudent({ ...newStudent, mothername: e.target.value })
+                      }
+                    />
+                    <label>Mother Name</label>
+                  </div>
+
+                  {/* Phone Number */}
+                  <div className="form-group floating">
+                    <input
+                      type="tel"
+                      value={newStudent.phone}
+                      onChange={(e) =>
+                        setNewStudent({ ...newStudent, phone: e.target.value })
+                      }
+                    />
+                    <label>Phone Number</label>
+                  </div>
+
+                  {/* Class Dropdown */}
+                  <div className="form-group">
+                    <label>Class</label>
+                    <select
                       value={newStudent.classId}
-                      onChange={(e) => setNewStudent({ ...newStudent, classId: e.target.value })}
-                    />
-                    <label>Class ID</label>
+                      onChange={(e) =>
+                        setNewStudent({ ...newStudent, classId: e.target.value })
+                      }
+                      className="modern-select"
+                      required
+                    >
+                      <option value="">Select a class</option>
+                      {classes.map((cls) => (
+                        <option key={cls.id} value={cls.id}>
+                          {cls.name} ({cls.level})
+                        </option>
+                      ))}
+                    </select>
                   </div>
 
+                  {/* Modal Actions */}
                   <div className="modal-actions">
                     <button
                       className="btn-primary"
@@ -1805,7 +1871,14 @@ if (isRegister) {
                       className="btn-secondary"
                       onClick={() => {
                         setShowAddStudentForm(false);
-                        setNewStudent({ name: "", email: "", classId: "" });
+                        setNewStudent({
+                          firstname: "",
+                          lastname: "",
+                          fathername: "",
+                          mothername: "",
+                          phone: "",
+                          classId: "",
+                        });
                       }}
                       disabled={savingStudent}
                     >
@@ -1815,6 +1888,7 @@ if (isRegister) {
                 </div>
               </div>
             )}
+
           </div>
         ) : null}
         {showAddClassForm && (
