@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
 import { FaPlus, FaEye, FaEyeSlash, FaSignOutAlt, FaArrowLeft, FaCheck, FaTimes, FaTrash, FaEdit, FaBook, FaUserGraduate,FaLinkedin, FaInstagram, 
-  FaEnvelope,FaChalkboardTeacher, FaGraduationCap,FaUniversity,FaFolder,FaBars } from "react-icons/fa";
+  FaEnvelope,FaChalkboardTeacher, FaGraduationCap,FaUniversity,FaFolder,FaBars, FaSun, FaMoon } from "react-icons/fa";
 import { RiBookOpenFill, RiQuestionnaireFill } from "react-icons/ri";
 import { BsStars, BsLightningChargeFill } from "react-icons/bs";
 import imageCompression from 'browser-image-compression';
@@ -104,6 +104,24 @@ function App() {
 
   const [studentSearchTerm, setStudentSearchTerm] = useState("");
   const [editingStudentId, setEditingStudentId] = useState(null);
+
+  const [darkMode, setDarkMode] = useState(() => {
+    return localStorage.getItem('darkMode') === 'true';
+  });
+
+  // Add this function to toggle dark mode
+  const toggleDarkMode = () => {
+    const newDarkMode = !darkMode;
+    setDarkMode(newDarkMode);
+    localStorage.setItem('darkMode', newDarkMode.toString());
+    
+    // Apply dark mode class to body
+    if (newDarkMode) {
+      document.body.classList.add('dark-mode');
+    } else {
+      document.body.classList.remove('dark-mode');
+    }
+  };
 
 
 
@@ -556,6 +574,9 @@ const fetchStudents = async () => {
       fetchLessons();
       fetchClasses();
       fetchStudents();
+    }
+    if (darkMode) {
+      document.body.classList.add('dark-mode');
     }
   }, [isLoggedIn]); // Dependency on isLoggedIn ensures it runs when login status changes
 
@@ -1363,14 +1384,22 @@ if (isRegister) {
             <h1 style={{fontSize:'25px'}}>Grammar Master</h1>
           </div>
           <div className="header-buttons">
-            {/* Hamburger Icon - only visible on small screens */}
+            {/* Dark Mode Toggle Button - Add this */}
+            <button 
+              className="btn-secondary theme-toggle"
+              onClick={toggleDarkMode}
+              title={darkMode ? "Switch to light mode" : "Switch to dark mode"}
+            >
+              {darkMode ? <FaSun /> : <FaMoon />}
+            </button>
 
-          <button 
-            className="menu-toggle" 
-            onClick={() => setMenuOpen(!menuOpen)}
-          >
-            {menuOpen ? <FaTimes /> : <FaBars />}
-          </button>
+            {/* Hamburger Icon - only visible on small screens */}
+            <button 
+              className="menu-toggle" 
+              onClick={() => setMenuOpen(!menuOpen)}
+            >
+              {menuOpen ? <FaTimes /> : <FaBars />}
+            </button>
 
             <div className={`menu-items ${menuOpen ? "open" : ""}`}>
               {userType === "Admin" && (
@@ -1395,7 +1424,6 @@ if (isRegister) {
                   >
                     <FaUserGraduate /> Students
                   </button>
-
                 </>
               )}
               <button className="btn-secondary logout-btn" onClick={confirmLogout}>
@@ -1403,7 +1431,6 @@ if (isRegister) {
               </button>
             </div>
           </div>
-
         </header>
         {view === "lessons" ? (
         <div className="lessons-container">

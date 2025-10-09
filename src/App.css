@@ -23,8 +23,173 @@
   --shadow-hover: 0 10px 15px rgba(0, 0, 0, 0.1);
   --radius: 12px;
   --transition: all 0.3s ease;
+   /* Dark mode variables */
+  --dark-bg: #1a202c;
+  --dark-card: #2d3748;
+  --dark-text: #f7fafc;
+  --dark-text-light: #cbd5e0;
+  --dark-border: #4a5568;
+  --dark-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  --dark-shadow-hover: 0 10px 15px rgba(0, 0, 0, 0.4);
+}
+/* Dark mode styles */
+body.dark-mode {
+  background-color: var(--dark-bg);
+  color: var(--dark-text);
 }
 
+body.dark-mode .app {
+  background-color: var(--dark-bg);
+}
+
+body.dark-mode .login-container,
+body.dark-mode .modern-modal,
+body.dark-mode .lesson-card,
+body.dark-mode .question-card,
+body.dark-mode .result-feedback,
+body.dark-mode .review-item,
+body.dark-mode .empty-state,
+body.dark-mode .app-footer {
+  background-color: var(--dark-card);
+  color: var(--dark-text);
+  border-color: var(--dark-border);
+}
+
+body.dark-mode .login-header h1,
+body.dark-mode .modal-title,
+body.dark-mode .lesson-card h3,
+body.dark-mode .question-card h3,
+body.dark-mode .section-title,
+body.dark-mode .section-header h2,
+body.dark-mode .score-display h2,
+body.dark-mode .result-feedback h3,
+body.dark-mode .question-review h3 {
+  color: var(--dark-text);
+}
+
+body.dark-mode .login-header p,
+body.dark-mode .lesson-card p,
+body.dark-mode .empty-state p,
+body.dark-mode .score-display p,
+body.dark-mode .result-feedback p,
+body.dark-mode .section-header p {
+  color: var(--dark-text-light);
+}
+
+body.dark-mode .input-group input,
+body.dark-mode .form-group.floating input,
+body.dark-mode .form-group.floating textarea,
+body.dark-mode .modern-select,
+body.dark-mode .search-input {
+  background-color: var(--dark-card);
+  color: var(--dark-text);
+  border-color: var(--dark-border);
+}
+
+body.dark-mode .input-group input:focus,
+body.dark-mode .form-group.floating input:focus,
+body.dark-mode .form-group.floating textarea:focus,
+body.dark-mode .modern-select:focus,
+body.dark-mode .search-input:focus {
+  border-color: var(--primary);
+  background-color: var(--dark-card);
+}
+
+body.dark-mode .input-group label,
+body.dark-mode .form-group.floating label {
+  color: var(--dark-text-light);
+  background-color: var(--dark-card);
+}
+
+body.dark-mode .question-form,
+body.dark-mode .option {
+  background-color: var(--dark-bg);
+  border-color: var(--dark-border);
+}
+
+body.dark-mode .btn-secondary {
+  background-color: var(--dark-card);
+  color: var(--dark-text);
+  border-color: var(--dark-border);
+}
+
+body.dark-mode .btn-secondary:hover {
+  background-color: #4a5568;
+}
+
+body.dark-mode .app-header {
+  border-bottom-color: var(--dark-border);
+}
+
+body.dark-mode .progress-bar {
+  background-color: var(--dark-border);
+}
+
+body.dark-mode .skeleton {
+  background-color: #4a5568;
+}
+
+body.dark-mode .skeleton-icon,
+body.dark-mode .skeleton-line {
+  background-color: #4a5568;
+}
+
+body.dark-mode .empty-icon {
+  color: var(--dark-border);
+}
+
+body.dark-mode .app-footer {
+  background-color: var(--dark-card);
+  border-top-color: var(--dark-border);
+}
+
+body.dark-mode .footer-item a {
+  color: var(--dark-text-light);
+}
+
+body.dark-mode .footer-item a:hover {
+  color: var(--primary);
+}
+
+/* Dark mode for DataTable */
+body.dark-mode .rdt_Table {
+  background-color: var(--dark-card);
+  color: var(--dark-text);
+}
+
+body.dark-mode .rdt_TableHead {
+  background-color: var(--dark-bg);
+}
+
+body.dark-mode .rdt_TableHead .rdt_TableCol {
+  background-color: var(--dark-bg);
+  color: var(--dark-text);
+  border-color: var(--dark-border);
+}
+
+body.dark-mode .rdt_TableRow {
+  background-color: var(--dark-card);
+  color: var(--dark-text);
+  border-color: var(--dark-border);
+}
+
+body.dark-mode .rdt_TableRow:nth-child(even) {
+  background-color: var(--dark-bg);
+}
+
+body.dark-mode .rdt_Pagination {
+  background-color: var(--dark-card);
+  color: var(--dark-text);
+  border-color: var(--dark-border);
+}
+
+body.dark-mode .rdt_Pagination button {
+  color: var(--dark-text);
+}
+
+body.dark-mode .rdt_Pagination button:disabled {
+  color: var(--dark-text-light);
+}
 body {
   font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   background-color: var(--background);
@@ -1511,5 +1676,31 @@ button {
 .btn-secondary.active:hover {
   background: var(--primary-dark, #5a49d6); /* darker shade */
 }
+/* Theme toggle button styles */
+.theme-toggle {
+  padding: 10px 12px !important;
+  font-size: 1.1rem;
+  transition: var(--transition);
+}
 
+/* Make only active btn-secondary buttons use primary background in dark mode */
+body.dark-mode .btn-secondary.active {
+  background: var(--primary) !important;
+  color: white !important;
+  border: 1px solid var(--primary) !important;
+}
+
+body.dark-mode .btn-secondary.active:hover {
+  background: var(--primary-dark) !important;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+}
+
+/* Responsive adjustments for theme toggle */
+@media (max-width: 768px) {
+  .theme-toggle {
+    padding: 8px 10px !important;
+    font-size: 1rem;
+  }
+}
 
