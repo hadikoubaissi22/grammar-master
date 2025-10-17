@@ -8,6 +8,7 @@ import { BsStars, BsLightningChargeFill } from "react-icons/bs";
 import imageCompression from 'browser-image-compression';
 import { v4 as uuidv4 } from 'uuid';
 import DataTable from "react-data-table-component";
+import Swal from 'sweetalert2';
 
 // Import SweetAlert2 with a safe fallback
 let MySwal;
@@ -647,10 +648,13 @@ const fetchStudents = async () => {
             onClick={() => {
               setShowAddStudentForm(true);
               setNewStudent({
-                name: row.name,
-                email: row.email,
-                classId: row.class_id,
-              });
+                    firstname: row.firstname || "",
+                    lastname: row.lastname || "",
+                    fathername: row.fathername || "",
+                    mothername: row.mothername || "",
+                    phone: row.phone || "",
+                    classId: row.class_id || "",
+                  });
               setEditingStudentId(row.id);
             }}
           >
@@ -673,6 +677,19 @@ const fetchStudents = async () => {
     e.preventDefault();
     setLoading(true);
 
+    // Create reusable toast
+    const Toast = Swal.mixin({
+      toast: true,
+      position: "top-end",
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+      didOpen: (toast) => {
+        toast.onmouseenter = Swal.stopTimer;
+        toast.onmouseleave = Swal.resumeTimer;
+      }
+    });
+
     try {
       const response = await fetch('https://grammar-backend-api.vercel.app/api/login', {
         method: 'POST',
@@ -689,38 +706,33 @@ const fetchStudents = async () => {
         localStorage.setItem("user_type", data.user_type);
         setUserType(data.user_type);
         setLoginError('');
-        
-        // MySwal.fire({
-        //   icon: 'success',
-        //   title: 'Welcome back!',
-        //   showConfirmButton: false,
-        //   timer: 1500,
-        //   background: '#7E6EF9',
-        //   color: 'white'
-        // });
+
+        Toast.fire({
+          icon: "success",
+          title: "Welcome back!"
+        });
+
         await fetchLessons();
       } else {
-        setLoginError(data.message || loginError || 'Login failed');
-        MySwal.fire({
-          icon: 'error',
-          title: 'Login Failed',
-          text: data.message || 'Invalid credentials',
-          confirmButtonColor: '#7E6EF9'
+        setLoginError(data.message || 'Login failed');
+        Toast.fire({
+          icon: "error",
+          title: data.message || "Login Failed"
         });
       }
     } catch (err) {
       console.error(err);
       setLoginError('Server error');
-      MySwal.fire({
-        icon: 'error',
-        title: 'Connection Error',
-        text: 'Unable to connect to the server',
-        confirmButtonColor: '#7E6EF9'
+      Toast.fire({
+        icon: "error",
+        title: "Connection Error",
+        text: "Unable to connect to the server"
       });
     } finally {
       setLoading(false);
     }
   };
+
 
   const validateLesson = () => {
     const errors = {};
@@ -1754,7 +1766,18 @@ if (isRegister) {
               </div>
               <button
                 className="btn-primary add-btn"
-                onClick={() => setShowAddStudentForm(true)}
+                 onClick={() => {
+                  setShowAddStudentForm(true);
+                  setEditingStudentId(null); // ✅ ensure not in edit mode
+                  setNewStudent({
+                    firstname: "",
+                    lastname: "",
+                    fathername: "",
+                    mothername: "",
+                    phone: "",
+                    classId: "",
+                  }); // ✅ clear the form fields
+                }}
               >
                 <FaPlus /> Add Student
               </button>
@@ -1795,10 +1818,17 @@ if (isRegister) {
             {showAddStudentForm && (
               <div className="modal-overlay">
                 <div className="modal modern-modal">
-                  <h2 className="modal-title">
-                    <FaPlus /> Add New Student
-                  </h2>
-
+                <h2 className="modal-title">
+                  {editingStudentId ? (
+                    <>
+                      <FaEdit /> Edit Student
+                    </>
+                  ) : (
+                    <>
+                      <FaPlus /> Add New Student
+                    </>
+                  )}
+                </h2>
                   {/* First Name */}
                   <div className="form-group floating">
                     <input
@@ -1881,7 +1911,7 @@ if (isRegister) {
 
                   {/* Modal Actions */}
                   <div className="modal-actions">
-                    <button
+                   <button
                       className="btn-primary"
                       onClick={saveStudent}
                       disabled={savingStudent}
@@ -1890,7 +1920,7 @@ if (isRegister) {
                         <div className="spinner-small"></div>
                       ) : (
                         <>
-                          <FaCheck /> Save Student
+                          <FaCheck /> {editingStudentId ? "Update Student" : "Save Student"}
                         </>
                       )}
                     </button>
