@@ -224,7 +224,10 @@ const handleRegister = async (e) => {
   );
   const filteredStudents = students.filter(student =>
     student.firstname.toLowerCase().includes(studentSearchTerm.toLowerCase()) ||
-    student.lastname.toLowerCase().includes(studentSearchTerm.toLowerCase())
+    student.lastname.toLowerCase().includes(studentSearchTerm.toLowerCase()) ||
+    student.fathername.toLowerCase().includes(studentSearchTerm.toLowerCase()) ||
+    student.mothername.toLowerCase().includes(studentSearchTerm.toLowerCase()) ||
+    student.phone.toLowerCase().includes(studentSearchTerm.toLowerCase())
   );
 
 
