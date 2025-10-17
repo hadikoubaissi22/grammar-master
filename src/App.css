@@ -1214,7 +1214,7 @@ button {
 }
 
 .swal2-confirm {
-  background: var(--primary) !important;
+  /* background: var(--primary) !important; */
   border-radius: var(--radius) !important;
   padding: 10px 24px !important;
 }
