@@ -1397,7 +1397,7 @@ if (isRegister) {
         <header className="app-header">
           <div className="logo">
             <RiBookOpenFill className="logo-icon" />
-            <h1 style={{fontSize:'25px'}}>Grammar Master</h1>
+            <h1 style={{fontSize:'25px'}}>Grammar Master - {localStorage.getItem("classname")}</h1>
           </div>
           <div className="header-buttons">
             {/* Dark Mode Toggle Button - Add this */}
