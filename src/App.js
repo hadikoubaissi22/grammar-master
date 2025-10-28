@@ -707,7 +707,7 @@ const fetchStudents = async () => {
         localStorage.setItem('isLoggedIn', 'true');
         localStorage.setItem("token", data.token);
         localStorage.setItem("user_type", data.user_type);
-        localStorage.setItem("classname", data.data.classname);
+        localStorage.setItem("classname", data.classname);
         setUserType(data.user_type);
         setLoginError('');
 
