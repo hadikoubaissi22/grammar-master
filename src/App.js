@@ -665,7 +665,7 @@ const fetchStudents = async () => {
           </button>
           <button
             className="action-btn delete-btn"
-            onClick={() => confirmDeleteStudent(row.id, row.name)}
+            onClick={() => confirmDeleteStudent(row.id, row.firstname)}
           >
             <FaTrash />
           </button>
@@ -707,6 +707,7 @@ const fetchStudents = async () => {
         localStorage.setItem('isLoggedIn', 'true');
         localStorage.setItem("token", data.token);
         localStorage.setItem("user_type", data.user_type);
+        localStorage.setItem("classname", data.data.classname);
         setUserType(data.user_type);
         setLoginError('');
 
@@ -2104,7 +2105,7 @@ if (isRegister) {
       <header className="app-header">
         <div className="logo">
           <RiBookOpenFill className="logo-icon" />
-          <h1>Grammar Master</h1>
+          <h1>Grammar Master - {localStorage.getItem("classname")}</h1>
         </div>
         <div className="lesson-header-buttons">
           <span className="lesson-progress">
