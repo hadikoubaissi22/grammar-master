@@ -57,6 +57,7 @@ function App() {
   const [newLesson, setNewLesson] = useState({
     title: "",
     image: "",
+    classId: "",
     questions: [
       { id: uuidv4(), text: "", options: ["", "", "", ""], correctAnswer: 0, image: "" }
     ]
@@ -747,6 +748,9 @@ const fetchStudents = async () => {
       errors.title = "Lesson title is required";
       if (!firstErrorField) firstErrorField = "title";
     }
+    if (!newLesson.classId) {
+      errors.classId = "Please choose a class";
+    }
 
     // Questions
     newLesson.questions.forEach((q, qIndex) => {
@@ -1397,7 +1401,7 @@ if (isRegister) {
         <header className="app-header">
           <div className="logo">
             <RiBookOpenFill className="logo-icon" />
-            <h1 style={{fontSize:'25px'}}>Grammar Master - {localStorage.getItem("classname")}</h1>
+            <h1 style={{fontSize:'25px'}}>Grammar Master </h1><span>{localStorage.getItem("classname")}</span>
           </div>
           <div className="header-buttons">
             {/* Dark Mode Toggle Button - Add this */}
@@ -1547,7 +1551,23 @@ if (isRegister) {
                   <label>Lesson Title</label>
                   {validationErrors.title && <span className="error-message">{validationErrors.title}</span>}
                 </div>
-
+                {/* Select Class */}
+                <div className="form-group">
+                  <label>Select Class</label>
+                  <select
+                    value={newLesson.classId}
+                    onChange={(e) => setNewLesson({ ...newLesson, classId: e.target.value })}
+                    className="modern-select"
+                    required
+                  >
+                    <option value="">Choose a class</option>
+                    {classes.map((cls) => (
+                      <option key={cls.id} value={cls.id}>
+                        {cls.name} ({cls.level})
+                      </option>
+                    ))}
+                  </select>
+                </div>
                 {/* Hidden Lesson Image URL (optional, not required) */}
                 <div className="form-group floating" style={{display:'none'}}>
                   <input 
