@@ -1511,8 +1511,16 @@ if (isRegister) {
                         e.stopPropagation();
                         setShowAddLessonForm(true);
                         setNewLesson({
-                          ...lesson,
-                          questions: lesson.questions.map(q => ({ ...q }))
+                          title: lesson.title,
+                          image: lesson.image || "",
+                          classId: lesson.class_id, // ✅ Map DB field to frontend field
+                          questions: lesson.questions.map(q => ({
+                            id: q.id,
+                            text: q.text,
+                            image: q.image || "",
+                            options: q.options,
+                            correctAnswer: q.correct_answer
+                          }))
                         });
                         setEditingLessonId(lesson.id); // <- store the lesson id for update
                       }}
