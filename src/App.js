@@ -1519,7 +1519,7 @@ if (isRegister) {
                             text: q.text,
                             image: q.image || "",
                             options: q.options,
-                            correctAnswer: q.correct_answer
+                            correctAnswer: q.correctAnswer
                           }))
                         });
                         setEditingLessonId(lesson.id); // <- store the lesson id for update
