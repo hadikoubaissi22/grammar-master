@@ -1513,7 +1513,7 @@ if (isRegister) {
                         setNewLesson({
                           title: lesson.title,
                           image: lesson.image || "",
-                          classId: lesson.class_id, // ✅ Map DB field to frontend field
+                          classId: lesson.classId, // ✅ Map DB field to frontend field
                           questions: lesson.questions.map(q => ({
                             id: q.id,
                             text: q.text,
