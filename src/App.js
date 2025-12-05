@@ -176,13 +176,7 @@ const handleRegister = async (e) => {
         text: data.message,
         confirmButtonText: 'OK',
         showDenyButton: true,
-        denyButtonText: 'Verify OTP',
         confirmButtonColor: '#7E6EF9',
-        denyButtonColor: '#4CAF50'
-      }).then((result) => {
-        if (result.isDenied) {
-          setShowOtp(true); // show OTP form state in React
-        }
       });
     }
   } catch (err) {
