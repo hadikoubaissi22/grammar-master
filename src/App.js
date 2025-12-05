@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
 import { FaPlus, FaEye, FaEyeSlash, FaSignOutAlt, FaArrowLeft, FaCheck, FaTimes, FaTrash, FaEdit, FaBook, FaUserGraduate,FaLinkedin, FaInstagram, 
-  FaEnvelope,FaChalkboardTeacher, FaGraduationCap,FaUniversity,FaFolder,FaBars, FaSun, FaMoon } from "react-icons/fa";
+  FaEnvelope,FaChalkboardTeacher, FaGraduationCap,FaUniversity,FaFolder,FaBars, FaSun, FaMoon,FaUsers } from "react-icons/fa";
 import { RiBookOpenFill, RiQuestionnaireFill } from "react-icons/ri";
 import { BsStars, BsLightningChargeFill } from "react-icons/bs";
 import imageCompression from 'browser-image-compression';
@@ -175,7 +175,6 @@ const handleRegister = async (e) => {
         title: 'Registration Failed',
         text: data.message,
         confirmButtonText: 'OK',
-        showDenyButton: true,
         confirmButtonColor: '#7E6EF9',
       });
     }
@@ -1437,6 +1436,13 @@ if (isRegister) {
                     onClick={() => setView("students")}
                   >
                     <FaUserGraduate /> Students
+                  </button>
+
+                  <button 
+                    className={`btn-secondary users-btn ${view === "users" ? "active" : ""}`} 
+                    onClick={() => setView("users")}
+                  >
+                    <FaUsers /> Users
                   </button>
                 </>
               )}
