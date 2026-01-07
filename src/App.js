@@ -1235,7 +1235,7 @@ const handleImageUpload = async (e, qIndex) => {
   if (showForgotPassword) {
     return (
       <form onSubmit={handleForgotPassword} className="login-form" style={{maxWidth: '400px', margin: '50px auto', padding: '20px', border: '1px solid #ddd', borderRadius: '8px'}}>
-        <h2>Forgot Password</h2>
+        <h2>Forgot Passwordddd</h2>
         <div className="input-group floating">
           <input
             type="email"
